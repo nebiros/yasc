@@ -14,53 +14,63 @@ function configure( $config ) {
 
 /**
  * @GET( '/' )
+ *
+ * Yasc pass to each script function two arguments, $view and $params,
+ * $view argument is a Yasc_View object, a simple class to render views and
+ * other stuff to handle views, $params is an associative array with 
+ * the url parameters.
+ *
+ * @param Yasc_View $view
+ * @param array $params
  */
 function index( $view, $params ) {
     echo '<pre>';
     echo '<hr>Hello world!';
-    echo '<hr>v: ';
-    var_dump($view);
-    echo '<hr>params:';
-    var_dump($params);
     echo '</pre>';
 
+    // Render a view, a view file is a .phtml file where you can access to
+    // the request method global variables, $_GET, $_POST, etc.
     $view->render( 'index' );
 }
 
 /**
  * @GET( '/tales/:lol' )
- * @POST( '/woot' ) // Ignored
+ * @POST( '/woot' ) // Ignored, yasc uses the first annotation occurence to start working.
+ *
+ * @param Yasc_View $view
+ * @param array $params
  */
-function tales() {
+function tales( $view, $params ) {
     echo '<pre>';
-    echo '<hr>lol value: ' . $_GET[':lol'];
-    echo '<hr>req: ';
-    var_dump($_GET);
+    // You can get params from $_GET or via $params argument.
+    echo '<hr>lol value: ' . $_GET[':lol'] . ' -- ' . $params[':lol'];
     echo '</pre>';
+
+    // Render a view, a view file is a .phtml file where you can access to
+    // the request method global variables, $_GET, $_POST, etc.
+    $view->render( 'tales' );
 }
 
 /**
  * @GET( '/tales/:lol/id/:id' )
+ *
+ * @param Yasc_View $view
+ * @param array $params
  */
 function tales2( $view, $params ) {
     echo '<pre>';
-    echo '<hr>lol value: ' . $_GET[':lol'];
-    echo '<hr>id value: ' . $_GET[':id'];
-    echo '<hr>v: ';
-    var_dump($view);
-    echo '<hr>params:';
-    var_dump($params);
-    echo '<hr>get: ';
-    var_dump($_GET);
+    // You can get params from $_GET or via $params argument.
+    echo '<hr>lol value: ' . $_GET[':lol'] . ' -- ' . $params[':lol'];
+    echo '<hr>id value: ' . $_GET[':id'] . ' -- ' . $params[':id'];
     echo '</pre>';
 }
 
 /**
- * @POST( "/tales3" )
+ * @POST( '/tales3' )
  */
 function tales3() {
     echo '<pre>';
     echo '<hr>post: ';
-    var_dump($_POST);
+    var_dump( $_POST );
     echo '</pre>';
 }

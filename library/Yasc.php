@@ -14,6 +14,8 @@ Yasc_Autoloader::register();
  * @author jfalvarez
  */
 class Yasc {
+    const VERSION = '0.1.0';
+
     /**
      * Bootstrap.
      *
