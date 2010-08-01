@@ -1,11 +1,36 @@
 <?php
 
 /**
+ * Yasc.
+ *
+ * LICENSE
+ *
+ * This source file is subject to the new BSD license that is bundled
+ * with this package in the file LICENSE.
+ * It is also available through the world-wide-web at this URL:
+ * http://github.com/nebiros/yasc/raw/master/LICENSE
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to mail@jfalvarez.com so we can send you a copy immediately.
+ *
+ * @category Yasc
+ * @package Yasc
+ * @subpackage Yasc_Function
+ * @copyright Copyright (c) 2010 Juan Felipe Alvarez Sadarriaga. (http://www.jfalvarez.com)
+ * @version $Id$
+ * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
+ */
+
+/**
  * Class to handle annotations.
  *
+ * @package Yasc
+ * @subpackage Yasc_Function
+ * @copyright Copyright (c) 2010 Juan Felipe Alvarez Sadarriaga. (http://www.jfalvarez.com)
+ * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
  * @author jfalvarez
  */
-class Yasc_Annotation {
+class Yasc_Function_Annotation {
     /**
      * GET annotation regex.
      */
@@ -33,23 +58,35 @@ class Yasc_Annotation {
      */
     protected $_pattern = null;
 
+    /**
+     *
+     * @param Yasc_Function $function 
+     */
     public function  __construct( Yasc_Function $function ) {
         $this->_match( $function );
     }
 
+    /**
+     *
+     * @return string
+     */
     public function getString() {
         return $this->_string;
     }
 
+    /**
+     *
+     * @return string
+     */
     public function getPattern() {
         return $this->_pattern;
     }
 
     /**
-     * Get function annotations.
+     * Match function annotation.
      *
-     * @param string $file
-     * @return Yasc_Annotation_Parser
+     * @param Yasc_Function $function
+     * @return Yasc_Function_Annotation
      */
     protected function _match( Yasc_Function $function ) {
         if ( preg_match( self::GET, $function->getDocComment(), $out ) ) {

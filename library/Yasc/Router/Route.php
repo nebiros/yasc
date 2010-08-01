@@ -1,8 +1,33 @@
 <?php
 
 /**
+ * Yasc.
+ *
+ * LICENSE
+ *
+ * This source file is subject to the new BSD license that is bundled
+ * with this package in the file LICENSE.
+ * It is also available through the world-wide-web at this URL:
+ * http://github.com/nebiros/yasc/raw/master/LICENSE
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to mail@jfalvarez.com so we can send you a copy immediately.
+ *
+ * @category Yasc
+ * @package Yasc
+ * @subpackage Yasc_Router
+ * @copyright Copyright (c) 2010 Juan Felipe Alvarez Sadarriaga. (http://www.jfalvarez.com)
+ * @version $Id$
+ * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
+ */
+
+/**
  * Route.
  *
+ * @package Yasc
+ * @subpackage Yasc_Router
+ * @copyright Copyright (c) 2010 Juan Felipe Alvarez Sadarriaga. (http://www.jfalvarez.com)
+ * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
  * @author jfalvarez
  */
 class Yasc_Router_Route {
@@ -59,28 +84,50 @@ class Yasc_Router_Route {
      */
     protected $_requestedFunction = null;
 
-    public function __construct( Array $functions = null ) {
-        if ( null !== $functions ) {
-            $this->_functions = $functions;
-        }
+    /**
+     *
+     * @param array $functions
+     */
+    public function __construct( Array $functions ) {
+        $this->_functions = $functions;
     }
 
+    /**
+     *
+     * @return string
+     */
     public function getUrl() {
         return $this->_url;
     }
 
+    /**
+     *
+     * @return string
+     */
     public function getUrlPattern() {
         return $this->_urlPattern;
     }
 
+    /**
+     *
+     * @return array
+     */
     public function getUrlComponents() {
         return $this->_urlComponents;
     }
 
+    /**
+     *
+     * @return array
+     */
     public function getFunctions() {
         return $this->_functions;
     }
 
+    /**
+     *
+     * @return Yasc_Function
+     */
     public function getRequestedFunction() {
         return $this->_requestedFunction;
     }
@@ -126,7 +173,7 @@ class Yasc_Router_Route {
         }
 
         if ( null === $this->_functions ) {
-            throw new Yasc_Exception( 'No user defined functions' );
+            throw new Yasc_Router_Exception( 'No user defined functions' );
         }
 
         $this->_processUrl();
@@ -135,7 +182,7 @@ class Yasc_Router_Route {
 
         foreach ( $this->_functions AS $function ) {
             if ( false === ( $function instanceof Yasc_Function ) ) {
-                throw new Yasc_Exception( 'Function is not a instance of Yasc_Function' );
+                throw new Yasc_Router_Exception( 'Function is not a instance of Yasc_Function' );
             }
 
             $annotationPath = explode( $this->_urlDelimiter, $function->getAnnotation()->getPattern() );
@@ -165,6 +212,12 @@ class Yasc_Router_Route {
                 // Assign variable value to each method..
                 if ( $var ) {
                     switch ( $function->getMethod() ) {
+                        case Yasc_Router::METHOD_DELETE:
+                            break;
+
+                        case Yasc_Router::METHOD_PUT:
+                            break;
+
                         case Yasc_Router::METHOD_POST:
                             $_POST[$annotationPath[$pos]] = $var;
                             break;
@@ -185,7 +238,7 @@ class Yasc_Router_Route {
                 continue;
             }
 
-            // So everything seems to be fine, execute fuction first occurrence.
+            // So everything seems to be fine, execute first occurrence.
             $this->_requestedFunction = $function;
 
             break;

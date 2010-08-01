@@ -14,62 +14,36 @@
  * to mail@jfalvarez.com so we can send you a copy immediately.
  *
  * @category Yasc
- * @package Yasc
+ * @package Yasc_View
+ * @subpackage Yasc_View_Helper
  * @copyright Copyright (c) 2010 Juan Felipe Alvarez Sadarriaga. (http://www.jfalvarez.com)
  * @version $Id$
  * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
  */
 
-set_include_path( implode( PATH_SEPARATOR, array(
-    realpath( dirname( __FILE__ ) ),
-    get_include_path()
-) ) );
-
-require_once 'Yasc/Autoloader.php';
-Yasc_Autoloader::register();
-
 /**
- * Yet Another Sinatra Clone.
+ * Abstract helper.
  *
- * @package Yasc
+ * @package Yasc_View
+ * @subpackage Yasc_View_Helper
  * @copyright Copyright (c) 2010 Juan Felipe Alvarez Sadarriaga. (http://www.jfalvarez.com)
  * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
  * @author jfalvarez
  */
-class Yasc {
-    const VERSION = '0.1.1';
-
+class Yasc_View_Helper_AbstractHelper implements Yasc_View_Helper {
     /**
-     * App.
      *
-     * @var Yasc_App
+     * @var Yasc_View
      */
-    protected $_app = null;
-
-    public function __construct() {}
+    public $view = null;
 
     /**
      *
-     * @return Yasc_App
+     * @param Yasc_View $view
+     * @return Yasc_View_Helper_AbstractHelper 
      */
-    public function getApp() {
-        if ( null === $this->_app ) {
-            $this->_app = new Yasc_App();
-        }
-
-        return $this->_app;
-    }
-
-    /**
-     * Run.
-     *
-     * @return void
-     */
-    public function run() {
-        $this->getApp()->run();
+    public function setView( Yasc_View $view ) {
+        $this->view = $view;
+        return $this;
     }
 }
-
-$yasc = new Yasc();
-$yasc->run();
-unset( $yasc );

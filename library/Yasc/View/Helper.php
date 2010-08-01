@@ -15,61 +15,25 @@
  *
  * @category Yasc
  * @package Yasc
+ * @subpackage Yasc_View
  * @copyright Copyright (c) 2010 Juan Felipe Alvarez Sadarriaga. (http://www.jfalvarez.com)
  * @version $Id$
  * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
  */
 
-set_include_path( implode( PATH_SEPARATOR, array(
-    realpath( dirname( __FILE__ ) ),
-    get_include_path()
-) ) );
-
-require_once 'Yasc/Autoloader.php';
-Yasc_Autoloader::register();
-
 /**
- * Yet Another Sinatra Clone.
+ * Helpers interface.
  *
  * @package Yasc
+ * @subpackage Yasc_View
  * @copyright Copyright (c) 2010 Juan Felipe Alvarez Sadarriaga. (http://www.jfalvarez.com)
  * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
  * @author jfalvarez
  */
-class Yasc {
-    const VERSION = '0.1.1';
-
+interface Yasc_View_Helper {
     /**
-     * App.
-     *
-     * @var Yasc_App
+     * 
+     * @param Yasc_View $view
      */
-    protected $_app = null;
-
-    public function __construct() {}
-
-    /**
-     *
-     * @return Yasc_App
-     */
-    public function getApp() {
-        if ( null === $this->_app ) {
-            $this->_app = new Yasc_App();
-        }
-
-        return $this->_app;
-    }
-
-    /**
-     * Run.
-     *
-     * @return void
-     */
-    public function run() {
-        $this->getApp()->run();
-    }
+    public function setView( Yasc_View $view );
 }
-
-$yasc = new Yasc();
-$yasc->run();
-unset( $yasc );
