@@ -33,8 +33,8 @@ TODO
 * Support for PUT and DELETE methods.
 * Support regex in annotations.
 * Add PUT and DELETE annotations.
-* -Add layouts support.-
-* -Add view helpers support.-
+* <strike>Add layouts support.</strike>
+* <strike>Add view helpers support.</strike>
 * Caching.
 * Tests.
 * Improve documentation.
