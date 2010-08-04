@@ -64,6 +64,9 @@ function tales1( $view, $params ) {
     echo '<hr>lol value: ' . $_GET[':lol'] . ' -- ' . $params[':lol'];
 
     $view->tales = 'hi! I\'m a view variable!';
+    // Disable layout.
+    Yasc_Layout::getInstance()->disable();
+    // Render a view without the layout.
     $view->render( 'tales' );
 }
 

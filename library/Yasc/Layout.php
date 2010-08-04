@@ -53,6 +53,12 @@ class Yasc_Layout {
      */
     protected $_content = null;
 
+    /**
+     *
+     * @var bool
+     */
+    protected $_disabled = false;
+
     final protected function __construct() {}
 
     final protected function  __clone() {}
@@ -127,5 +133,21 @@ class Yasc_Layout {
     public function setContent( $content ) {
         $this->_content = $content;
         return $this;
+    }
+
+    /**
+     *
+     * @return void
+     */
+    public function disable() {
+        $this->_disabled = true;
+    }
+
+    /**
+     *
+     * @return bool
+     */
+    public function isDisabled() {
+        return $this->_disabled;
     }
 }

@@ -138,6 +138,24 @@ class Yasc_App {
     }
 
     /**
+     *
+     * @return Yasc_Layout
+     */
+    public function getLayout() {
+        return $this->_layout;
+    }
+
+    /**
+     *
+     * @param Yasc_Layout $layout
+     * @return Yasc_App 
+     */
+    public function setLayout( Yasc_Layout $layout ) {
+        $this->_layout = $layout;
+        return $this;
+    }
+
+    /**
      * Start yasc.
      *
      * @return void
@@ -206,13 +224,15 @@ class Yasc_App {
 
         $buffer = $this->_view->getBuffer();
 
-        if ( null !== $this->_layout ) {
+        if ( null !== $this->_layout && false === $this->_layout->isDisabled() ) {
             $this->_layout->setContent( $buffer );
             $this->_view->render( $this->_layout->getLayout() );            
             $buffer = $this->_view->getBuffer();
         }
 
-        echo $buffer;
+        if ( null !== $buffer ) {
+            echo $buffer;
+        }        
     }
 
     /**
