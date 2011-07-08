@@ -92,11 +92,11 @@ class Yasc_Function_Annotation {
         if ( preg_match( self::GET, $function->getDocComment(), $out ) ) {
             $this->_string = trim( $out[self::ANNOTATION] );
             $this->_pattern = preg_replace( '/\'|"/', '', trim( $out[self::PATTERN] ) );
-            $function->setMethod( 'get' );
+            $function->setMethod( Yasc_Router::METHOD_GET );
         } else if ( preg_match( self::POST, $function->getDocComment(), $out ) ) {
             $this->_string = trim( $out[self::ANNOTATION] );
             $this->_pattern = preg_replace( '/\'|"/', '', trim( $out[self::PATTERN] ) );
-            $function->setMethod( 'post' );
+            $function->setMethod( Yasc_Router::METHOD_POST );
         }
 
         return $this;

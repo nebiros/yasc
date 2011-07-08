@@ -237,6 +237,10 @@ class Yasc_Router_Route {
             if ( false === $partsMatch ) {
                 continue;
             }
+            
+            if ( strtolower( $_SERVER["REQUEST_METHOD"] ) != $function->getMethod() ) {
+                continue;
+            }
 
             // So everything seems to be fine, execute first occurrence.
             $this->_requestedFunction = $function;

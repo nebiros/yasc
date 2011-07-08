@@ -19,21 +19,43 @@ function configure( $config ) {
         // You can add more than one path of view helpers and set a
         // class prefix for the path added.
         // ->addViewHelpersPath( dirname( __FILE__ ) . '/../library/My/View/Helper', 'My_View_Helper' );
+        // 
+        // Add extra options to the configuration object.    
+        // ->addOption( "db", $mysql );
 }
 
 /**
  * @GET( '/' )
  *
- * Yasc pass to each script function two arguments, $view and $params,
+ * Yasc pass to each script function three arguments, $view, $params and $config,
  * $view argument is a Yasc_View object, a simple class to render .phtml scripts
  * and other stuff to handle views, $params is an associative array with
- * the url parameters.
- *
+ * the url parameters and the $config argument is a Yasc_App_Config object, you
+ * can get options from the configuration function.
+ * 
  * @param Yasc_View $view
  * @param array $params
+ * @param Yasc_App_Config $config
  */
-function index( $view, $params ) {
+function index( $view, $params, $config ) {
+    $view->layout()->disable();
+    // $mysql = $config->getOption( "db" );
+    // ...
+    
     echo 'Hello world!';
+}
+
+/**
+ * @POST( '/' )
+ * 
+ * You can route the same url to another function using a different request
+ * method.
+ * 
+ */
+function save_index( $view, $params ) {
+    $view->layout()->disable();
+    
+    var_dump( $_POST );
 }
 
 /**

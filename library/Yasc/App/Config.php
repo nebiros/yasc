@@ -32,6 +32,12 @@
  */
 class Yasc_App_Config {
     /**
+     *
+     * @var array
+     */
+    protected $_options = array();
+    
+    /**
      * Views folders.
      *
      * @var array
@@ -55,6 +61,59 @@ class Yasc_App_Config {
         // Built in helpers.
         $this->addViewHelpersPath( realpath( dirname( __FILE__ ) . '/../View/Helper' ), 'Yasc_View_Helper' );
     }
+    
+    /**
+     *
+     * @param array $options
+     * @return Yasc_App_Config 
+     */
+    public function setOptions( Array $options ) {
+        $this->_options = $options;
+        return $this;
+    }
+    
+    /**
+     *
+     * @return array
+     */
+    public function getOptions() {
+        return $this->_options;
+    }
+    
+    /**
+     *
+     * @param mixed $key
+     * @param mixed $default
+     * @return mixed|null 
+     */
+    public function getOption( $key, $default = null ) {
+        if ( true === isset( $this->_options[$key] ) ) {
+            return $this->_options[$key];
+        }
+        
+        return $default;        
+    }
+    
+    /**
+     *
+     * @param array $options
+     * @return App_View_Helper_Payments 
+     */
+    public function addOptions( Array $options ) {
+        $this->_options = array_merge( $this->_options, $options );
+        return $this;
+    }
+    
+    /**
+     *
+     * @param mixed $key
+     * @param mixed $value
+     * @return App_View_Helper_Payments 
+     */
+    public function addOption( $key, $value = null ) {
+        $this->_options[$key] = $value;
+        return $this;
+    }    
 
     /**
      *

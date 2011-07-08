@@ -199,6 +199,10 @@ class Yasc_App {
         }
 
         foreach ( $functions['user'] as $name ) {
+            if ( $name == self::CONFIGURATION_FUNCTION_NAME ) {
+                continue;
+            }
+            
             $this->_functions[] = new Yasc_Function( $name );
         }
     }
@@ -241,6 +245,6 @@ class Yasc_App {
      * @return void
      */
     protected function _execute() {
-        $this->_function->invoke( $this->_view, $this->_function->getParams() );
+        $this->_function->invoke( $this->_view, $this->_function->getParams(), $this->_config );
     }
 }
