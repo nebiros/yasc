@@ -20,7 +20,9 @@ function configure( $config ) {
         // class prefix for the path added.
         // ->addViewHelpersPath( dirname( __FILE__ ) . '/../library/My/View/Helper', 'My_View_Helper' );
         // 
-        // Add extra options to the configuration object.    
+        // Add extra options to the configuration object.
+        // 
+        // Some $mysql connection resource ...
         // ->addOption( "db", $mysql );
 }
 
@@ -40,7 +42,8 @@ function configure( $config ) {
 function index( $view, $params, $config ) {
     $view->layout()->disable();
     // $mysql = $config->getOption( "db" );
-    // ...
+    // 
+    // ... do some sql operation.
     
     echo 'Hello world!';
 }
