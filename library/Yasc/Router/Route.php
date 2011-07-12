@@ -16,7 +16,7 @@
  * @category Yasc
  * @package Yasc
  * @subpackage Yasc_Router
- * @copyright Copyright (c) 2010 Juan Felipe Alvarez Sadarriaga. (http://www.jfalvarez.com)
+ * @copyright Copyright (c) 2010 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
  * @version $Id$
  * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
  */
@@ -26,49 +26,11 @@
  *
  * @package Yasc
  * @subpackage Yasc_Router
- * @copyright Copyright (c) 2010 Juan Felipe Alvarez Sadarriaga. (http://www.jfalvarez.com)
+ * @copyright Copyright (c) 2010 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
  * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
- * @author jfalvarez
+ * @author nebiros
  */
 class Yasc_Router_Route {
-    /**
-     * Default scheme.
-     *
-     * @var string
-     */
-    protected $_scheme = 'http';
-
-    /**
-     * Default port.
-     *
-     * @var int
-     */
-    protected $_port = 80;
-
-    protected $_urlVariable = ':';
-    protected $_urlDelimiter = '/';
-
-    /**
-     * Requested url, normalized.
-     *
-     * @var string
-     */
-    protected $_url = null;
-
-    /**
-     * Url pattern.
-     *
-     * @var string
-     */
-    protected $_urlPattern = null;
-
-    /**
-     * Url components.
-     *
-     * @var array
-     */
-    protected $_urlComponents = array();
-
     /**
      * Array of script mapped functions, each element is
      * a Yasc_Function object.
@@ -83,6 +45,12 @@ class Yasc_Router_Route {
      * @var Yasc_Function
      */
     protected $_requestedFunction = null;
+    
+    /**
+     *
+     * @var Yasc_Request_Http
+     */
+    protected $_http = null;
 
     /**
      *
@@ -90,30 +58,7 @@ class Yasc_Router_Route {
      */
     public function __construct( Array $functions ) {
         $this->_functions = $functions;
-    }
-
-    /**
-     *
-     * @return string
-     */
-    public function getUrl() {
-        return $this->_url;
-    }
-
-    /**
-     *
-     * @return string
-     */
-    public function getUrlPattern() {
-        return $this->_urlPattern;
-    }
-
-    /**
-     *
-     * @return array
-     */
-    public function getUrlComponents() {
-        return $this->_urlComponents;
+        $this->_http = new Yasc_Request_Http();
     }
 
     /**
@@ -133,35 +78,6 @@ class Yasc_Router_Route {
     }
 
     /**
-     * Process url requested.
-     *
-     * @return Yasc_Router_Route
-     */
-    protected function _processUrl() {
-        $url = $this->_scheme;
-
-        if ( $_SERVER['HTTPS'] == 'on' ) {
-            $url .= 's';
-        }
-
-        $url .= '://';
-
-        if ( $_SERVER['SERVER_PORT'] != $this->_port ) {
-            $url .= $_SERVER['SERVER_NAME'] . ':' . $_SERVER['SERVER_PORT'] . $_SERVER['REQUEST_URI'];
-        } else {
-            $url .= $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
-        }
-
-        $this->_url = trim( $url, $this->_urlDelimiter );
-        $this->_urlComponents = parse_url( $this->_url );
-
-        $urlPattern = str_replace( $_SERVER['SCRIPT_NAME'], '', $this->_urlComponents['path'] );
-        $this->_urlPattern = ( $urlPattern ) ? $urlPattern : '/';
-
-        return $this;
-    }
-
-    /**
      * Match url path, when a path is matched his script function is set.
      *
      * @param array $functions
@@ -176,16 +92,14 @@ class Yasc_Router_Route {
             throw new Yasc_Router_Exception( 'No user defined functions' );
         }
 
-        $this->_processUrl();
-
-        $urlPath = explode( $this->_urlDelimiter, $this->_urlPattern );
+        $urlPath = explode( $this->_http->getUrlDelimiter(), $this->_http->getUrlPattern() );
 
         foreach ( $this->_functions AS $function ) {
             if ( false === ( $function instanceof Yasc_Function ) ) {
                 throw new Yasc_Router_Exception( 'Function is not a instance of Yasc_Function' );
             }
 
-            $annotationPath = explode( $this->_urlDelimiter, $function->getAnnotation()->getPattern() );
+            $annotationPath = explode( $this->_http->getUrlDelimiter(), $function->getAnnotation()->getPattern() );
 
             // If it's not the same path size, jump next function.
             if ( count( $urlPath ) != count( $annotationPath ) ) {
@@ -198,7 +112,7 @@ class Yasc_Router_Route {
                 $var = $annotationPath[$pos];
 
                 // Assign url part value to match the entire annotation path.
-                if ( substr( $annotationPath[$pos], 0, 1 ) === $this->_urlVariable ) {
+                if ( substr( $annotationPath[$pos], 0, 1 ) === $this->_http->getUrlVariable() ) {
                     $var = $part;
                 }
 

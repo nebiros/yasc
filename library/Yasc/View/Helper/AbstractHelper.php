@@ -16,7 +16,7 @@
  * @category Yasc
  * @package Yasc_View
  * @subpackage Yasc_View_Helper
- * @copyright Copyright (c) 2010 Juan Felipe Alvarez Sadarriaga. (http://www.jfalvarez.com)
+ * @copyright Copyright (c) 2010 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
  * @version $Id$
  * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
  */
@@ -26,9 +26,9 @@
  *
  * @package Yasc_View
  * @subpackage Yasc_View_Helper
- * @copyright Copyright (c) 2010 Juan Felipe Alvarez Sadarriaga. (http://www.jfalvarez.com)
+ * @copyright Copyright (c) 2010 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
  * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
- * @author jfalvarez
+ * @author nebiros
  */
 class Yasc_View_Helper_AbstractHelper implements Yasc_View_Helper {
     /**

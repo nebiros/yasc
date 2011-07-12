@@ -3,7 +3,7 @@
 /**
  * Tales.
  *
- * @author jfalvarez
+ * @author nebiros
  */
 class Tales extends Yasc_View_Helper_AbstractHelper {
     public function tales() {
