@@ -15,7 +15,7 @@
  *
  * @category Yasc
  * @package Yasc
- * @subpackage Yasc_Router
+ * @subpackage Yasc_Http
  * @copyright Copyright (c) 2010 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
  * @version $Id$
  * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
@@ -67,7 +67,7 @@ class Yasc_Http_UserAgent {
         $this->_agent = ( true === isset( $_SERVER["HTTP_USER_AGENT"] ) ) ? strtolower( $_SERVER["HTTP_USER_AGENT"] ) : null;
 
         if ( null === $this->_agent ) {
-            throw new Exception( "User agent is empty ._." );
+            throw new Yasc_Http_Exception( "User agent is empty ._." );
         }
     }
 

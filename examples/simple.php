@@ -40,7 +40,12 @@ function configure( $config ) {
  * @param Yasc_App_Config $config
  */
 function index( $view, $params, $config ) {
+    // Use layout view helper to disable the layout or use Yasc_Layout object
+    // Yasc_Layout::getInstance()->disable(), Yasc_Layout uses singleton pattern.    
     $view->layout()->disable();
+    
+    // Get the mysql resource from this app configuration option.
+    // 
     // $mysql = $config->getOption( "db" );
     // 
     // ... do some sql operation.
@@ -58,7 +63,12 @@ function index( $view, $params, $config ) {
 function save_index( $view, $params ) {
     $view->layout()->disable();
     
+    echo '<pre>';
+    echo '<hr>post: ';
     var_dump( $_POST );
+    echo '<hr>params: ';
+    var_dump( $params );
+    echo '</pre>';
 }
 
 /**
@@ -67,13 +77,17 @@ function save_index( $view, $params ) {
  * @param Yasc_View $view
  * @param array $params
  */
-function tales( $view, $params ) {
+function tales( $view, $params ) {    
     // You can add variables to the view object and get his value on
     // the view script using the variable $this, like: $this->tales.
-    $view->tales = 'hi! I\'m a view variable!';
+    $view->tales = 'oh! I\'m a view variable!';
 
     // Render a view script, a view script is a .phtml file where you can mix
-    // php and html, the V in the MVC model.
+    // php and html, the V in the MVC model, in this example the view files
+    // are stored in views/ folder.
+    // 
+    // This view calls a view helper (Tales), so check views/helpers/Tales.php 
+    // to see what it does.
     $view->render( 'tales' );
 }
 
@@ -88,9 +102,7 @@ function tales1( $view, $params ) {
     // You can get params from $_GET or via $params argument.
     echo '<hr>lol value: ' . $_GET[':lol'] . ' -- ' . $params[':lol'];
 
-    $view->tales = 'hi! I\'m a view variable!';
-    // Use layout view helper to disable the layout or use Yasc_Layout object
-    // Yasc_Layout::getInstance()->disable(), Yasc_Layout uses singleton pattern.
+    $view->tales = 'oh! I\'m a view variable!';
     $view->layout()->disable(); 
     // Render a view without the layout.
     $view->render( 'tales' );
@@ -115,4 +127,17 @@ function tales3() {
     echo '<hr>post: ';
     var_dump( $_POST );
     echo '</pre>';
+}
+
+/**
+ * @GET( '/foo' )
+ * 
+ * @param Yasc_View $view
+ */
+function foo( $view ) {
+    // Render view script foo, this view script calls the view helper class Foo,
+    // this view helper render a view helper script inside and return his content
+    // to this view, a view helper script is just another .phtml file, if you don't
+    // want to create a whole html string inside the helper ;).
+    $view->render( 'foo' );
 }

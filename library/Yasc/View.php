@@ -55,19 +55,26 @@ class Yasc_View {
      * @var array
      */
     protected $_helpers = array();
+    
+    /**
+     *
+     * @var bool
+     */
+    protected $_useViewStream = false;    
 
     /**
      *
      * @param Yasc_App $app 
      */
-    public function __construct( Yasc_App $app = null ) {
-        if ( null !== $app ) {
-            $this->setApp( $app );
-        }
+    public function __construct( Yasc_App $app ) {
+        $this->_app = $app;
+        $this->_useViewStream = $this->_app->getConfig()->useViewStream();
 
-		if ( false === in_array( 'view', stream_get_wrappers() ) ) {
-            stream_wrapper_register( 'view', 'Yasc_View_Stream' );
-		}
+        if ( true === $this->_useViewStream ) {
+            if ( false === in_array( 'view', stream_get_wrappers() ) ) {
+                stream_wrapper_register( 'view', 'Yasc_View_Stream' );
+            }
+        }
     }
 
     /**
@@ -135,24 +142,6 @@ class Yasc_View {
 
     /**
      *
-     * @param Yasc_App $app
-     * @return Yasc_View
-     */
-    public function setApp( Yasc_App $app ) {
-        $this->_app = $app;
-        return $this;
-    }
-
-    /**
-     *
-     * @return Yasc_App
-     */
-    public function getApp() {
-        return $this->_app;
-    }
-
-    /**
-     *
      * @return string
      */
     public function getViewScript() {
@@ -167,7 +156,7 @@ class Yasc_View {
     public function setViewScript( $filename ) {
         $this->_viewScript = null;
         
-        $folders = $this->getApp()->getConfig()->getViewsPaths();
+        $folders = $this->_app->getConfig()->getViewsPaths();
 
         foreach ( $folders as $path ) {
             if ( true === is_file( realpath( $path . '/' . $filename . '.phtml' ) ) ) {
@@ -207,8 +196,8 @@ class Yasc_View {
      * @return Yasc_View_Helper_AbstractHelper
      */
     public function getHelper( $name ) {
-        $className = ucfirst( ( string ) $name );
-        $paths = $this->getApp()->getConfig()->getViewHelpersPaths();
+        $className = trim( ucfirst( ( string ) $name ) );
+        $paths = $this->_app->getConfig()->getViewHelpersPaths();
 
         foreach ( $paths as $classPrefix => $path ) {
             $class = $classPrefix . $className;
@@ -245,9 +234,15 @@ class Yasc_View {
     protected function _processViewScript( $filename ) {
         $this->setViewScript( $filename );
         unset( $filename );
-
+        
         ob_start();
-        include 'view://' . $this->_viewScript;
+        
+        if ( true === $this->_useViewStream ) {
+            include 'view://' . $this->_viewScript;            
+        } else {
+            include $this->_viewScript;
+        }
+        
         $this->_buffer = ob_get_clean();
 
         return $this->_buffer;
@@ -263,6 +258,10 @@ class Yasc_View {
         $this->_processViewScript( $filename );
     }
 
+    /**
+     *
+     * @return string
+     */
     public function __toString() {
         return $this->_buffer;
     }

@@ -56,6 +56,12 @@ class Yasc_App_Config {
      * @var array
      */
     protected $_viewHelpersPaths = array();
+    
+    /**
+     *
+     * @var bool
+     */
+    protected $_useViewStream = false;
 
     public function __construct() {
         // Built in helpers.
@@ -256,5 +262,23 @@ class Yasc_App_Config {
         $this->addViewHelpersPath( realpath( dirname( __FILE__ ) . '/../View/Helper' ), 'Yasc_View_Helper' );
         set_include_path( implode( PATH_SEPARATOR, $paths ) );
         return $this;
+    }
+    
+    /**
+     *
+     * @param bool $flag
+     * @return Yasc_App_Config 
+     */
+    public function setViewStream( $flag = false ) {
+        $this->_useViewStream = $flag;
+        return $this;
+    }
+    
+    /**
+     *
+     * @return bool
+     */
+    public function useViewStream() {
+        return $this->_useViewStream;
     }
 }

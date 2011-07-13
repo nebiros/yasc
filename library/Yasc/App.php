@@ -172,7 +172,7 @@ class Yasc_App {
      *
      * @return void
      */
-    public function _configure() {
+    protected function _configure() {
         if ( false === function_exists( self::CONFIGURATION_FUNCTION_NAME ) ) {
             return;
         }
@@ -223,7 +223,10 @@ class Yasc_App {
      * @return void
      */
     protected function _dispatch() {
-        $this->_view = new Yasc_View( $this );
+        if ( null === $this->_view ) {
+            $this->_view = new Yasc_View( $this );
+        }        
+        
         $this->_execute();
 
         $buffer = $this->_view->getBuffer();
