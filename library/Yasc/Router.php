@@ -82,10 +82,6 @@ class Yasc_Router {
             throw new Yasc_Router_Exception( 'Requested function not found' );
         }
 
-        if ( strtolower( $_SERVER['REQUEST_METHOD'] ) != $requestedFunction->getMethod() ) {
-            throw new Yasc_Router_Exception( 'Invalid request method' );
-        }
-
         return $requestedFunction;
     }
 }

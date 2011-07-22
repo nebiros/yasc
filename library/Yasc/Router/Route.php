@@ -117,13 +117,17 @@ class Yasc_Router_Route {
         if ( null === $this->_functions ) {
             throw new Yasc_Router_Exception( 'No user defined functions' );
         }
-        
+
         foreach ( $this->_functions AS $function ) {
             if ( false === ( $function instanceof Yasc_Function ) ) {
                 throw new Yasc_Router_Exception( 'Function is not a instance of Yasc_Function' );
             }
-            
-            if ( strtolower( $_SERVER['REQUEST_METHOD'] ) != $function->getMethod() ) {
+
+            if ( strtolower( $_SERVER['REQUEST_METHOD'] ) != $function->getMethod() 
+                && ( strtolower( $_SERVER['REQUEST_METHOD'] ) != Yasc_Router::METHOD_POST 
+                    || !array_key_exists( "_method", $_POST ) 
+                    || strtolower( $_POST["_method"] ) != $function->getMethod() )
+                ) {
                 continue;
             }
             
@@ -131,6 +135,10 @@ class Yasc_Router_Route {
                 $this->_requestedFunction = $function;
                 break;
             }
+        }
+
+        if ( null === $this->_requestedFunction ) {
+            throw new Yasc_Router_Exception( 'Requested function not found' );
         }
         
         $this->_requestedFunction->setParams( ( array ) $this->_setupParams() );

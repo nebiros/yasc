@@ -105,9 +105,9 @@ function tales( $view, $params ) {
 function tales1( $view, $params ) {
     $view->layout()->disable();
     
-    // You can get params from $_GET or via $params argument.
-    echo '<hr>lol value: ' . $_GET['lol'] . ' -- ' . $params['lol'];
-    $view->tales = 'oh! I\'m a view variable!';    
+    echo '<hr>lol value: ' . $params['lol'];
+    $view->tales = 'oh! I\'m a view variable!';
+    
     // Render a view without the layout.
     $view->render( 'tales' );
 }
@@ -121,8 +121,8 @@ function tales1( $view, $params ) {
 function tales2( $view, $params ) {
     $view->layout()->disable();
     
-    echo '<hr>lol value: ' . $_GET['lol'] . ' -- ' . $params['lol'];
-    echo '<hr>id value: ' . $_GET['id'] . ' -- ' . $params['id'];
+    echo '<hr>lol value: ' . $params['lol'];
+    echo '<hr>id value: ' . $params['id'];
 }
 
 /**
@@ -241,10 +241,64 @@ function pairs( $view, $params ) {
     echo 'single wildcard: ';
     var_dump( $params[0] ); // hello
     echo 'param my: ';
-    var_dump( $params["my"] ); // friend
+    var_dump( $params['my'] ); // friend
     echo 'param from: ';
-    var_dump( $params["from"] ); // limonade
+    var_dump( $params['from'] ); // limonade
     echo 'param you_guys: ';
-    var_dump( $params["you_guys"] ); // roxor
+    var_dump( $params['you_guys'] ); // roxor
     echo '</pre>';    
+}
+
+/**
+ * @GET( '/update' )
+ * 
+ * @param Yasc_View $view
+ * @param array $params
+ */
+function form_put( $view ) {
+    $view->render( "update" );
+    
+    // Use '_method' parameter in POST requests when PUT or DELETE methods 
+    // are not supported.
+    
+    /*
+    <form id="put" name="put" action="<?php echo $this->http( array( "uri" => "/update" ) ) ?>" method="post">
+        <p>First name: <input type="text" name="first_name" /></p>
+        <p>Last name: <input type="text" name="last_name" /></p>
+        <p><input type="submit" value="Update" /></p>
+        <input type="hidden" name="_method" value="PUT" id="_method" />
+    </form>
+    */
+}
+
+/**
+ * @PUT( '/update' )
+ * 
+ * @param Yasc_View $view
+ * @param array $params
+ * @param Yasc_App_Config $config
+ */
+function save_put( $view, $params, $config ) {
+    $view->layout()->disable();
+    
+    // $mysql = $config->getOption( "db" );
+    // $mysql->update( 'table1', array( 'first_name' => $_POST['first_name'], 'last_name' => $_POST['last_name'] ) );
+    
+    header( 'Location: ' . $view->http( array( 'uri' => '/update' ) ) );
+}
+
+/**
+ * @DELETE( '/drop' )
+ * 
+ * @param Yasc_View $view
+ * @param array $params
+ * @param Yasc_App_Config $config
+ */
+function drop( $view, $params, $config ) {
+    $view->layout()->disable();
+    
+    // $mysql = $config->getOption( "db" );
+    // $mysql->delete( 'table1', "id = {$_POST["id"]}" );
+    
+    header( 'Location: ' . $view->http( array( 'uri' => '/update' ) ) );
 }
