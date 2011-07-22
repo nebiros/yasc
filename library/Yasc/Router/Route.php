@@ -24,6 +24,9 @@
 /**
  * Route.
  *
+ * Based on the original work from Limonade and Fabrice Luraine (@link http://www.limonade-php.net/)
+ * and Zend Framework's Zend_Controller_Router_Route_Module#match method (@link http://framework.zend.com/svn/framework/standard/tags/release-1.11.9/library/Zend/Controller/Router/Route/Module.php).
+ * 
  * @package Yasc
  * @subpackage Yasc_Router
  * @copyright Copyright (c) 2010 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
@@ -31,8 +34,13 @@
  * @author nebiros
  */
 class Yasc_Router_Route {
+    const SINGLE_ASTERISK_SUBPATTERN = '(?:/([^\/]*))?';
+    const DOUBLE_ASTERISK_SUBPATTERN = '(?:/(.*))?';
+    const OPTIONAL_SLASH_SUBPATTERN = '(?:/*?)';
+    const NO_SLASH_ASTERISK_SUBPATTERN = '(?:([^\/]*))?';
+    
     /**
-     * Array of script mapped functions, each element is
+     * Array of mapped functions, each element is
      * a Yasc_Function object.
      *
      * @var array
@@ -51,6 +59,24 @@ class Yasc_Router_Route {
      * @var Yasc_Request_Http
      */
     protected $_http = null;
+    
+    /**
+     *
+     * @var string
+     */
+    protected $_pattern = null;
+    
+    /**
+     *
+     * @var array
+     */
+    protected $_matches = array();
+    
+    /**
+     *
+     * @var array
+     */
+    protected $_paramsList = array();
 
     /**
      *
@@ -91,77 +117,166 @@ class Yasc_Router_Route {
         if ( null === $this->_functions ) {
             throw new Yasc_Router_Exception( 'No user defined functions' );
         }
-
-        $urlPath = explode( $this->_http->getUrlDelimiter(), $this->_http->getUrlPattern() );
-
+        
         foreach ( $this->_functions AS $function ) {
             if ( false === ( $function instanceof Yasc_Function ) ) {
                 throw new Yasc_Router_Exception( 'Function is not a instance of Yasc_Function' );
             }
-
-            $annotationPath = explode( $this->_http->getUrlDelimiter(), $function->getAnnotation()->getPattern() );
-
-            // If it's not the same path size, jump next function.
-            if ( count( $urlPath ) != count( $annotationPath ) ) {
-                continue;
-            }
-
-            $partsMatch = true;
-
-            foreach ( $urlPath as $pos => $part ) {
-                $var = $annotationPath[$pos];
-
-                // Assign url part value to match the entire annotation path.
-                if ( substr( $annotationPath[$pos], 0, 1 ) === $this->_http->getUrlVariable() ) {
-                    $var = $part;
-                }
-
-                // If one of the parts of the url doesn't match de annotation
-                // path then jump to the next function.
-                if ( strtolower( $part ) != strtolower( $var ) ) {
-                    $partsMatch = false;
-                    break;
-                }
-
-                // Assign variable value to each method..
-                if ( $var ) {
-                    switch ( $function->getMethod() ) {
-                        case Yasc_Router::METHOD_DELETE:
-                            break;
-
-                        case Yasc_Router::METHOD_PUT:
-                            break;
-
-                        case Yasc_Router::METHOD_POST:
-                            $_POST[$annotationPath[$pos]] = $var;
-                            break;
-
-                        case Yasc_Router::METHOD_GET:
-                        default:
-                            $_GET[$annotationPath[$pos]] = $var;
-                            break;
-                    }
-
-                    $function->setParam( $annotationPath[$pos], $var );
-                }
-            }
-
-            // Url parts doesn't match the entire annotation path, go to the
-            // next function.
-            if ( false === $partsMatch ) {
+            
+            if ( strtolower( $_SERVER['REQUEST_METHOD'] ) != $function->getMethod() ) {
                 continue;
             }
             
-            if ( strtolower( $_SERVER["REQUEST_METHOD"] ) != $function->getMethod() ) {
-                continue;
+            if ( true === $this->_lookup( $function ) ) {
+                $this->_requestedFunction = $function;
+                break;
             }
-
-            // So everything seems to be fine, execute first occurrence.
-            $this->_requestedFunction = $function;
-
-            break;
         }
+        
+        $this->_requestedFunction->setParams( ( array ) $this->_setupParams() );
 
         return $this;
+    }
+    
+    /**
+     *
+     * @param Yasc_Function $function
+     * @return bool
+     */
+    protected function _lookup( Yasc_Function $function ) {
+        $annotationPattern = $function->getAnnotation()->getPattern();
+        // stripslashes because we need to scape some of them when we use wildcards
+        // like * or **.
+        $annotationParts = explode( $this->_http->getUrlDelimiter(), stripcslashes( $annotationPattern ) );
+
+        // regex route.
+        if ( $annotationPattern[0] == '^' ) {
+            if ( substr( $annotationPattern, -1 ) != '$' ) {
+                $annotationPattern .= '$';
+            }
+
+            $pattern = '#' . $annotationPattern . '#i';
+        // slash route.
+        } else if ( $annotationPattern == $this->_http->getUrlDelimiter() ) {
+            $pattern = '#^' . self::OPTIONAL_SLASH_SUBPATTERN . '$#';
+        } else {
+            $parsed = array(); $paramsList = array(); $paramsCounter = 0;
+
+            foreach ( $annotationParts as $part ) {
+                if ( true === empty( $part ) ) {
+                    continue;
+                }
+
+                $param = null;
+
+                // extracting double asterisk **.
+                if ( $part == '**' ) {
+                    $parsed[] = self::DOUBLE_ASTERISK_SUBPATTERN;
+                    $param = $paramsCounter;
+                // extracting single asterisk *.
+                } else if ( $part == '*' ) {
+                    $parsed[] = self::SINGLE_ASTERISK_SUBPATTERN;
+                    $param = $paramsCounter;
+                // extracting named parameters :my_param.
+                } else if ( $part[0] == ':' ) {
+                    if ( true == preg_match( '/^:([^\:]+)$/', $part, $matches ) ) {
+                        $parsed[] = self::SINGLE_ASTERISK_SUBPATTERN;
+                        $param = $matches[1];
+                    }
+                // *.* pattern.
+                } else if ( false !== strpos( $part, '*' ) ) {
+                    $subParts = explode( '*', $part );
+                    $subParsed = array();
+
+                    foreach( $subParts as $subPart ) {
+                        $subParsed[] = preg_quote( $subPart, '#' );
+                    }
+                    
+                    $parsed[] = '/' . implode( self::NO_SLASH_ASTERISK_SUBPATTERN, $subParsed );
+                // everything else.
+                } else {
+                    $parsed[] = '/' . preg_quote( $part, '#' );
+                }
+                
+                if ( null === $param ) {
+                    continue;                        
+                }
+                
+                if ( false === array_key_exists( $paramsCounter, $paramsList ) 
+                    || true === is_null( $paramsList[$paramsCounter] ) 
+                    ) {
+                    $paramsList[$paramsCounter] = $param;
+                }
+
+                $paramsCounter++;
+            }
+
+            $pattern = '#^' . implode( '', $parsed ) . self::OPTIONAL_SLASH_SUBPATTERN . '?$#i';
+        }
+                
+        if ( true == preg_match( $pattern, $this->_http->getUrlPattern(), $matches ) ) {
+            $this->_pattern = $pattern;
+            $this->_matches = $matches;
+            $this->_paramsList = $paramsList;
+            
+            return true;
+        }
+        
+        return false;
+    }
+    
+    /**
+     *
+     * @return array
+     */
+    protected function _setupParams() {
+        if ( count( $this->_matches ) < 2 ) {
+            return;
+        }
+        
+        $params = array();        
+        array_shift( $this->_matches );
+        $matchesCount = count( $this->_matches );
+        $paramValues = array_values( ( array ) $this->_paramsList );
+        $namesCount = count( $paramValues );
+
+        if ( $matchesCount < $namesCount ) {
+            $tmp = array_fill( 0, $namesCount - $matchesCount, null );
+            $this->_matches = array_merge( $this->_matches, $tmp );
+        } else if ( $matchesCount > $namesCount ) {
+            $paramValues = range( $namesCount, $matchesCount - 1 );
+        }
+
+        $combination = array_combine( $paramValues, $this->_matches );
+        $params = array_replace( $params, $combination );
+        
+        $pairs = array();
+        
+        foreach ( $params as $index => $param ) {
+            if ( false === strpos( $param, $this->_http->getUrlDelimiter() ) ) {
+                continue;
+            }
+            
+            $dobleAsteriskParam = $param;
+            unset( $params[$index] );
+            $pairs = array_merge( $pairs, explode( $this->_http->getUrlDelimiter(), $dobleAsteriskParam ) );
+        }
+        
+        // get params by pairs, like zend framework does, 
+        // param1/value1/param2/value2, param1 will be the key of the param,
+        // value1 the value of param1, if the value is not present NULL is his
+        // value.
+        // 
+        // Check Zend_Controller_Router_Route_Module#match method and see how 
+        // this works.
+        if ( ( $n = count( $pairs ) ) > 0 ) {
+            for ( $i = 0; $i < $n; $i = $i + 2 ) {
+                $key = urldecode( $pairs[$i] );
+                $val = isset( $pairs[$i + 1] ) ? urldecode( $pairs[$i + 1] ) : null;
+                $params[$key] = ( isset( $params[$key] ) ? ( array_merge( ( array ) $params[$key], array( $val ) ) ) : $val );
+            }
+        }
+        
+        return $params;
     }
 }

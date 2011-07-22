@@ -40,6 +40,16 @@ class Yasc_Function_Annotation {
      * POST annotation regex.
      */
     const POST = '/(@POST\((.*)\))/i';
+    
+    /**
+     * PUT annotation regex.
+     */
+    const PUT = '/(@PUT\((.*)\))/i';
+    
+    /**
+     * DELETE annotation regex.
+     */
+    const DELETE = '/(@DELETE\((.*)\))/i';
 
     const ANNOTATION = 1;
     const PATTERN = 2;
@@ -89,16 +99,18 @@ class Yasc_Function_Annotation {
      * @return Yasc_Function_Annotation
      */
     protected function _match( Yasc_Function $function ) {
-        if ( preg_match( self::GET, $function->getDocComment(), $out ) ) {
-            $this->_string = trim( $out[self::ANNOTATION] );
-            $this->_pattern = preg_replace( '/\'|"/', '', trim( $out[self::PATTERN] ) );
+        if ( preg_match( self::GET, $function->getDocComment(), $matches ) ) {
             $function->setMethod( Yasc_Router::METHOD_GET );
-        } else if ( preg_match( self::POST, $function->getDocComment(), $out ) ) {
-            $this->_string = trim( $out[self::ANNOTATION] );
-            $this->_pattern = preg_replace( '/\'|"/', '', trim( $out[self::PATTERN] ) );
+        } else if ( preg_match( self::POST, $function->getDocComment(), $matches ) ) {
             $function->setMethod( Yasc_Router::METHOD_POST );
+        } else if ( preg_match( self::PUT, $function->getDocComment(), $matches ) ) {
+            $function->setMethod( Yasc_Router::METHOD_PUT );
+        } else if ( preg_match( self::DELETE, $function->getDocComment(), $matches ) ) {
+            $function->setMethod( Yasc_Router::METHOD_DELETE );
         }
-
+        
+        $this->_string = trim( $matches[self::ANNOTATION] );
+        $this->_pattern = preg_replace( '/\'|"/', '', trim( $matches[self::PATTERN] ) );
         return $this;
     }
 
