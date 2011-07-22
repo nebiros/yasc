@@ -197,7 +197,7 @@ class Yasc_View {
      */
     public function getHelper( $name ) {
         $className = trim( ucfirst( ( string ) $name ) );
-        $paths = $this->_app->getConfig()->getViewHelpersPaths();
+        $paths = $this->_app->getConfig()->getViewHelperPaths();
 
         foreach ( $paths as $classPrefix => $path ) {
             $class = $classPrefix . $className;

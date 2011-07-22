@@ -4,25 +4,33 @@
 require_once '../library/Yasc.php';
 
 /**
- * Function to configure some yasc options.
+ * Function to configure some yasc options. This function is optional you don't
+ * need to write it in your app script if you don't want.
  * 
  * @param Yasc_App_Config $config
  */
 function configure( $config ) {
-    // You can add a layout, a layout is just a .phtml file that represents
+    // * You can add a layout, a layout is just a .phtml file that represents
     // the site template.
-    $config->setLayoutScript( dirname( __FILE__ ) . '/layouts/default.phtml' )
-        // You can add more than one folder to store views, each view script
+    $config->setLayoutScript( dirname( __FILE__ ) . '/layouts/default.phtml' );
+        // * If you want to use a stream wrapper to convert markup of mostly-PHP 
+        // templates into PHP prior to include(), seems like is a little bit slow,
+        // so by default is off.
+        // ->setViewStream( true );
+        // 
+        // * You can add more than one folder to store views, each view script
         // is a .phtml file.
-        ->addViewsPath( dirname( __FILE__ ) . '/views' )
-        ->addViewHelpersPath( dirname( __FILE__ ) . '/views/helpers' );
-        // You can add more than one path of view helpers and set a
+        // ->addViewsPath( dirname( __FILE__ ) . '/extra_views' );
+        // 
+        // * You can add more than one path of view helpers and set a
         // class prefix for the path added.
         // ->addViewHelpersPath( dirname( __FILE__ ) . '/../library/My/View/Helper', 'My_View_Helper' );
         // 
-        // Add extra options to the configuration object.
+        // or if you don't want a class prefix just leave it blank
+        // ->addViewHelpersPath( dirname( __FILE__ ) . '/extra_views/helpers' );
         // 
-        // Some $mysql connection resource ...
+        // * Add extra options to the configuration object, like some $mysql connection 
+        // resource ...
         // ->addOption( "db", $mysql );
 }
 
@@ -107,6 +115,10 @@ function tales1( $view, $params ) {
     
     echo '<hr>lol value: ' . $params['lol'];
     $view->tales = 'oh! I\'m a view variable!';
+    
+    // instance of a model.
+    $foo = new Foo();
+    $view->helloModel = $foo->doSomething();
     
     // Render a view without the layout.
     $view->render( 'tales' );
@@ -288,13 +300,13 @@ function save_put( $view, $params, $config ) {
 }
 
 /**
- * @DELETE( '/drop' )
+ * @DELETE( '/delete' )
  * 
  * @param Yasc_View $view
  * @param array $params
  * @param Yasc_App_Config $config
  */
-function drop( $view, $params, $config ) {
+function destroy( $view, $params, $config ) {
     $view->layout()->disable();
     
     // $mysql = $config->getOption( "db" );

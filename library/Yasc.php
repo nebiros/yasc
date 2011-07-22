@@ -20,6 +20,9 @@
  * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
  */
 
+defined( 'APPLICATION_PATH' )
+    || define( 'APPLICATION_PATH', realpath( getcwd() ) );
+
 set_include_path( implode( PATH_SEPARATOR, array(
     realpath( dirname( __FILE__ ) ),
     get_include_path()

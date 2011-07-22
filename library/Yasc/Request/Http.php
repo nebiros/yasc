@@ -197,10 +197,7 @@ class Yasc_Request_Http {
      * @return Yasc_Request_Http
      */
     public function processUrl( $serverName = null, $uri = null ) {
-        if ( null === $serverName 
-            || $serverName == $this->_urlDelimiter 
-            || gethostbyname( $serverName ) == $_SERVER['SERVER_ADDR']  
-            ) {
+        if ( null === $serverName || $serverName == $this->_urlDelimiter ) {
             $serverName = $_SERVER['SERVER_NAME'];
         }
         

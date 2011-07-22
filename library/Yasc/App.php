@@ -173,12 +173,13 @@ class Yasc_App {
      * @return void
      */
     protected function _configure() {
+        $this->_config = new Yasc_App_Config();
+        
         if ( false === function_exists( self::CONFIGURATION_FUNCTION_NAME ) ) {
             return;
         }
 
-        $configure = new ReflectionFunction( self::CONFIGURATION_FUNCTION_NAME );
-        $this->_config = new Yasc_App_Config();
+        $configure = new ReflectionFunction( self::CONFIGURATION_FUNCTION_NAME );        
         $configure->invoke( $this->_config );
 
         if ( null !== $this->_config->getLayoutScript() ) {

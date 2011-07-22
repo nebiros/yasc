@@ -31,6 +31,9 @@
  * @author nebiros
  */
 class Yasc_App_Config {
+    const TYPE_PATH_HELPER = 1;
+    const TYPE_PATH_MODEL = 2;
+    
     /**
      *
      * @var array
@@ -55,17 +58,22 @@ class Yasc_App_Config {
      *
      * @var array
      */
-    protected $_viewHelpersPaths = array();
+    protected $_viewHelperPaths = array();
     
     /**
      *
      * @var bool
      */
     protected $_useViewStream = false;
+    
+    /**
+     *
+     * @var array
+     */
+    protected $_modelPaths = array();
 
     public function __construct() {
-        // Built in helpers.
-        $this->addViewHelpersPath( realpath( dirname( __FILE__ ) . '/../View/Helper' ), 'Yasc_View_Helper' );
+        $this->addDefaultPaths();
     }
     
     /**
@@ -146,8 +154,12 @@ class Yasc_App_Config {
      * @return Yasc_App_Config
      */
     public function addViewsPath( $path ) {
+        if ( false === is_string( $path ) ) {
+            return false;
+        }
+        
         $path = realpath( $path );
-
+        
         if ( false === is_dir( $path ) ) {
             throw new Yasc_App_Exception( "Views folder '{$path}' not found" );
         }
@@ -170,6 +182,10 @@ class Yasc_App_Config {
      * @return Yasc_App_Config
      */
     public function setLayoutScript( $layout ) {
+        if ( false === is_string( $layout ) ) {
+            return false;
+        }
+        
         $layout = realpath( $layout );
         
         if ( false === is_file( $layout ) ) {
@@ -188,8 +204,8 @@ class Yasc_App_Config {
      *
      * @return array
      */
-    public function getViewHelpersPaths() {
-        return $this->_viewHelpersPaths;
+    public function getViewHelperPaths() {
+        return $this->_viewHelperPaths;
     }
 
     /**
@@ -198,11 +214,7 @@ class Yasc_App_Config {
      * @return string
      */
     public function getViewHelpersPath( $classPrefix = 'Yasc_View_Helper_' ) {
-        if ( '_' != substr( $classPrefix, -1 ) && false === empty( $classPrefix ) ) {
-            $classPrefix .= '_';
-        }
-
-        return $this->_viewHelpersPaths[$classPrefix];
+        return $this->_getClassPath( self::TYPE_PATH_HELPER, $classPrefix );
     }
 
     /**
@@ -212,7 +224,7 @@ class Yasc_App_Config {
      * @return Yasc_App_Config
      */
     public function setViewHelpersPath( $path, $classPrefix = null ) {
-        $this->resetViewHelpersPaths()->addViewHelpersPath( $path, $classPrefix );
+        $this->resetViewHelperPaths()->addViewHelpersPath( $path, $classPrefix );
         return $this;
     }
 
@@ -223,30 +235,7 @@ class Yasc_App_Config {
      * @return Yasc_App_Config
      */
     public function addViewHelpersPath( $path, $classPrefix = null ) {
-        $path = realpath( $path );
-
-        if ( null !== $classPrefix ) {
-            $prefixFolder = str_replace( '_', DIRECTORY_SEPARATOR, $classPrefix );
-            $path = realpath( str_replace( $prefixFolder, '', $path ) );
-        }
-
-        if ( false === is_dir( $path ) ) {
-            throw new Yasc_App_Exception( "View helpers folder '{$path}' not found" );
-        }
-
-        if ( '_' != substr( $classPrefix, -1 ) && false === empty( $classPrefix ) ) {
-            $classPrefix .= '_';
-        }
-
-        $this->_viewHelpersPaths[$classPrefix] = $path;
-
-        if ( false === array_search( $path, explode( PATH_SEPARATOR, get_include_path() ) ) ) {
-            set_include_path( implode( PATH_SEPARATOR, array(
-                $path,
-                get_include_path()
-            ) ) );
-        }
-
+        $this->_addClassPath( self::TYPE_PATH_HELPER, $path, $classPrefix );
         return $this;
     }
 
@@ -254,10 +243,10 @@ class Yasc_App_Config {
      *
      * @return Yasc_App_Config
      */
-    public function resetViewHelpersPaths() {
+    public function resetViewHelperPaths() {
         $includePaths = explode( PATH_SEPARATOR, get_include_path() );
-        $paths = array_diff( $includePaths, $this->_viewHelpersPaths );
-        $this->_viewHelpersPaths = array();
+        $paths = array_diff( $includePaths, $this->_viewHelperPaths );
+        $this->_viewHelperPaths = array();
         // Set default view helpers.
         $this->addViewHelpersPath( realpath( dirname( __FILE__ ) . '/../View/Helper' ), 'Yasc_View_Helper' );
         set_include_path( implode( PATH_SEPARATOR, $paths ) );
@@ -280,5 +269,115 @@ class Yasc_App_Config {
      */
     public function useViewStream() {
         return $this->_useViewStream;
+    }
+    
+    /**
+     *
+     * @return array
+     */
+    public function getModelPaths() {
+        return $this->_modelPaths;
+    }
+
+    public function setModelPaths( $path ) {
+        $this->_modelPaths = ( array ) $path;
+        return $this;
+    }
+        
+    /**
+     *
+     * @param string $path
+     * @param string $classPrefix
+     * @return Yasc_App_Config
+     */    
+    public function addModelPath( $path, $classPrefix = null ) {
+        $this->_addClassPath( self::TYPE_PATH_MODEL, $path, $classPrefix );
+        return $this;
+    }
+    
+    /**
+     *
+     * @param int $type
+     * @param string $path
+     * @param string $classPrefix 
+     */
+    protected function _addClassPath( $type, $path, $classPrefix = null ) {
+        if ( false === is_string( $path ) ) {
+            return false;
+        }
+        
+        $path = realpath( $path );
+
+        if ( null !== $classPrefix ) {
+            $prefixFolder = str_replace( '_', DIRECTORY_SEPARATOR, $classPrefix );
+            $path = realpath( str_replace( $prefixFolder, '', $path ) );
+        }
+        
+        if ( false === is_dir( $path ) ) {
+            throw new Yasc_App_Exception( "Class path folder '{$path}' not found" );
+        }
+
+        if ( '_' != substr( $classPrefix, -1 ) && false === empty( $classPrefix ) ) {
+            $classPrefix .= '_';
+        }        
+        
+        switch ( ( int ) $type ) {
+            case self::TYPE_PATH_HELPER:
+                $this->_viewHelperPaths[$classPrefix] = $path;
+                break;
+            
+            case self::TYPE_PATH_MODEL:
+                $this->_modelPaths[$classPrefix] = $path;
+                break;
+        }
+
+        if ( false === array_search( $path, explode( PATH_SEPARATOR, get_include_path() ) ) ) {
+            set_include_path( implode( PATH_SEPARATOR, array(
+                $path,
+                get_include_path()
+            ) ) );
+        }        
+    }
+    
+    /**
+     *
+     * @param int $type
+     * @param string $classPrefix
+     * @return string 
+     */
+    public function _getClassPath( $type, $classPrefix = null ) {
+        if ( '_' != substr( $classPrefix, -1 ) && false === empty( $classPrefix ) ) {
+            $classPrefix .= '_';
+        }
+        
+        switch ( ( int ) $type ) {
+            case self::TYPE_PATH_HELPER:
+                return $this->_viewHelperPaths[$classPrefix];
+                break;
+            
+            case self::TYPE_PATH_MODEL:
+                return $this->_modelPaths[$classPrefix];
+                break;
+        }
+    }
+    
+    /**
+     * Add default folders if they exist. This is the current structure:
+     * 
+     * app.php
+     * views/
+     *   helpers/
+     * models/
+     * 
+     */
+    public function addDefaultPaths() {
+        // default views folder.
+        $this->addViewsPath( realpath( APPLICATION_PATH . '/views' ) );
+        // default view helpers path.
+        $this->addViewHelpersPath( realpath( APPLICATION_PATH . '/views/helpers' ) );
+        // default models folder.
+        $this->addModelPath( realpath( APPLICATION_PATH . '/models' ) );        
+        // built in helpers.
+        $this->addViewHelpersPath( realpath( dirname( __FILE__ ) . '/../View/Helper' ), 'Yasc_View_Helper' );
     }
 }

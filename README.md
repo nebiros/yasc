@@ -3,20 +3,60 @@ YASC
 _Yet Another Sinatra Clone_
 
 yasc is a [sinatra](http://www.sinatrarb.com/) _(kind of)_ clone written in [php](http://en.wikipedia.org/wiki/PHP) 
-and highly influenced by [zend framework](http://framework.zend.com/), the routing system is based in [Limonade's](http://www.limonade-php.net/) code, 
-is a tiny framework that uses _user defined_ functions as actions (like in the MVC pattern) and _annotations_ to route 
-the requested url to a function.
+and highly influenced by [zend framework](http://framework.zend.com/), the routing system is based on 
+[limonade's](http://www.limonade-php.net/) code, is a tiny framework that uses _user defined_ functions as actions 
+(like in the MVC pattern) and _annotations_ to route the requested url to a function.
 
 Prerequisites
 -------------
 
 yasc requires PHP 5.2.x or later.
 
+Installation
+------------
+
+* Download yasc from github, or just clone it.
+* Copy the library/ folder to your app folder.
+* Create a **index.php** or a **app.php** file and include yasc, like: *require_once 'library/Yasc.php';*
+* Go to your favorite browser and run your script.
+* Follow the examples.
+* Done.
+
+Setup
+-----
+
+Maybe you want to *hide* your script file from the URL, http://app.com/app.php/some/thing (I know, pretty URLs, SEO shut, blah, blah) 
+and get something fancier like: http://app.com/some/thing, ok, well, create a [VirtualHost](http://httpd.apache.org/docs/2.0/vhosts/) 
+and add a [.htaccess](http://corz.org/serv/tricks/htaccess2.php) file to your application folder like this:
+
+### Virtual host configuration:
+
+    <VirtualHost *:80>
+       DocumentRoot "/path/to/your/application"
+       ServerName app.com
+       <Directory "/path/to/your/application">
+           Options -Indexes MultiViews FollowSymLinks
+           AllowOverride All 
+           Order allow,deny
+           Allow from all 
+       </Directory>
+    </VirtualHost>
+
+### .htaccess file:
+
+    RewriteEngine On
+    RewriteCond %{REQUEST_FILENAME} -s [OR]
+    RewriteCond %{REQUEST_FILENAME} -l [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^.*$ - [NC,L]
+    RewriteRule ^.*$ index.php [NC,L]
+
+**NOTE:** Your app file must be named index.php in order to work.
+
 Simple Example
 --------------
 
 ```php
-// simple.php
 <?php
 
 // Include Yasc.
@@ -28,34 +68,72 @@ require_once '../library/Yasc.php';
 function index( $view, $params ) {
     echo 'Hello World!';
 }
+
+/**
+ * @POST( '/' )
+ */
+function create( $view, $params ) {
+    // save something.
+}
+
+/**
+ * @PUT( '/' )
+ */
+function update( $view, $params ) {
+    // update something.
+}
+
+/**
+ * @DELETE( '/' )
+ */
+function destroy( $view, $params ) {
+    // delete something.
+}
 ```
 
 Configuration
 -------------
 
+yasc uses this project structure:
+
+    app.php
+    views/
+        helpers/
+    models/
+
+If you create those folders you don't need to add each one to yasc.
+
 ```php
 <?php
 
 /**
- * Function to configure some yasc options.
+ * Function to configure some yasc options. This function is optional you don't
+ * need to write it in your app script if you don't want.
  * 
  * @param Yasc_App_Config $config
  */
 function configure( $config ) {
-    // You can add a layout, a layout is just a .phtml file that represents
+    // * You can add a layout, a layout is just a .phtml file that represents
     // the site template.
-    $config->setLayoutScript( dirname( __FILE__ ) . '/layouts/default.phtml' )
-        // You can add more than one folder to store views, each view script
+    $config->setLayoutScript( dirname( __FILE__ ) . '/layouts/default.phtml' );
+        // * If you want to use a stream wrapper to convert markup of mostly-PHP 
+        // templates into PHP prior to include(), seems like is a little bit slow,
+        // so by default is off.
+        // ->setViewStream( true );
+        // 
+        // * You can add more than one folder to store views, each view script
         // is a .phtml file.
-        ->addViewsPath( dirname( __FILE__ ) . '/views' )
-        ->addViewHelpersPath( dirname( __FILE__ ) . '/views/helpers' );
-        // You can add more than one path of view helpers and set a
+        // ->addViewsPath( dirname( __FILE__ ) . '/extra_views' );
+        // 
+        // * You can add more than one path of view helpers and set a
         // class prefix for the path added.
         // ->addViewHelpersPath( dirname( __FILE__ ) . '/../library/My/View/Helper', 'My_View_Helper' );
         // 
-        // Add extra options to the configuration object.
+        // or if you don't want a class prefix just leave it blank
+        // ->addViewHelpersPath( dirname( __FILE__ ) . '/extra_views/helpers' );
         // 
-        // Some $mysql connection resource ...
+        // * Add extra options to the configuration object, like some $mysql connection 
+        // resource ...
         // ->addOption( "db", $mysql );
 }
 ```
@@ -147,6 +225,10 @@ function tales1( $view, $params ) {
     
     echo '<hr>lol value: ' . $params['lol'];
     $view->tales = 'oh! I\'m a view variable!';
+    
+    // instance of a model.
+    $foo = new Foo();
+    $view->helloModel = $foo->doSomething();
     
     // Render a view without the layout.
     $view->render( 'tales' );
@@ -328,13 +410,13 @@ function save_put( $view, $params, $config ) {
 }
 
 /**
- * @DELETE( '/drop' )
+ * @DELETE( '/delete' )
  * 
  * @param Yasc_View $view
  * @param array $params
  * @param Yasc_App_Config $config
  */
-function drop( $view, $params, $config ) {
+function destroy( $view, $params, $config ) {
     $view->layout()->disable();
     
     // $mysql = $config->getOption( "db" );
@@ -354,4 +436,4 @@ TODO
 * <del>Add view helpers support.</del>
 * Caching.
 * Tests.
-* Improve documentation.
+* <del>Improve documentation.</del>
