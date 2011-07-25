@@ -4,7 +4,7 @@
  *
  * @author nebiros
  */
-class Foo extends Yasc_View_Helper_AbstractHelper {
+class Helper_Foo extends Yasc_View_Helper_HelperAbstract {
     /**
      * From the php manual:
      * 

@@ -16,7 +16,7 @@
  * @category Yasc
  * @package Yasc
  * @subpackage Yasc_Http
- * @copyright Copyright (c) 2010 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
+ * @copyright Copyright (c) 2010 - 2011 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
  * @version $Id$
  * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
  */
@@ -25,7 +25,7 @@
  *
  * @package Yasc
  * @subpackage Yasc_Http
- * @copyright Copyright (c) 2010 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
+ * @copyright Copyright (c) 2010 - 2011 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
  * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
  * @author nebiros
  */

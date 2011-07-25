@@ -15,20 +15,26 @@
  *
  * @category Yasc
  * @package Yasc
- * @copyright Copyright (c) 2010 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
+ * @copyright Copyright (c) 2010 - 2011 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
  * @version $Id$
  * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
  */
+
+require_once 'Autoloader/Manager.php';
 
 /**
  * Class autoloader.
  *
  * @package Yasc
- * @copyright Copyright (c) 2010 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
+ * @copyright Copyright (c) 2010 - 2011 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
  * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
  * @author nebiros
  */
 class Yasc_Autoloader {
+    /**
+     *
+     * @return bool 
+     */
 	public static function register() {
         return spl_autoload_register( array( 'Yasc_Autoloader', 'loadClass' ) );
     }
@@ -53,38 +59,79 @@ class Yasc_Autoloader {
         // Framework Interop Group reference implementation:
         // http://groups.google.com/group/php-standards/web/psr-0-final-proposal
         $className = ltrim( $className, '\\' );
-        $fileName  = '';
+        $filename  = '';
         $namespace = '';
         if ( $lastNsPos = strripos( $className, '\\' ) ) {
             $namespace = substr( $className, 0, $lastNsPos );
             $className = substr( $className, $lastNsPos + 1 );
-            $fileName  = str_replace( '\\', DIRECTORY_SEPARATOR, $namespace ) . DIRECTORY_SEPARATOR;
+            $filename  = str_replace( '\\', DIRECTORY_SEPARATOR, $namespace ) . DIRECTORY_SEPARATOR;
         }
 
-        $fileName .= str_replace( '_', DIRECTORY_SEPARATOR, $className ) . '.php';
+        $filename .= str_replace( '_', DIRECTORY_SEPARATOR, $className ) . '.php';
 
-        if ( false === self::_fileExists( $fileName ) ) {
+        if ( false === self::loadFile( $filename ) ) {
             return;
         }
-
-        require $fileName;
 	}
-
+    
     /**
-     * Search for a file into each path from the include path.
      *
-     * @param string $fileName
-     * @return bool
+     * @param string $filename
+     * @param array $dirs
+     * @return false 
      */
-    protected static function _fileExists( $fileName ) {
-        $paths = explode( PATH_SEPARATOR, get_include_path() );
+    public static function loadFile( $filename, Array $dirs = null ) {
+        $manager = Yasc_Autoloader_Manager::getInstance();       
 
-        foreach ( $paths as $path ) {
-            if ( true === is_file( realpath( $path . '/' . $fileName ) ) ) {
+        if ( null === $dirs ) {
+            $dirs = $manager->getPaths( Yasc_Autoloader_Manager::PATH_TYPE_MODEL ) 
+                + $manager->getPaths( Yasc_Autoloader_Manager::PATH_TYPE_FUNCTION_HELPER )
+                + $manager->getPaths( Yasc_Autoloader_Manager::PATH_TYPE_VIEW_HELPER )
+                + $manager->getPaths( Yasc_Autoloader_Manager::PATH_TYPE_NS );            
+        }
+        
+        if ( true === self::_require( $filename, $dirs ) ) {
+            return;
+        }
+        
+        $dirs = explode( PATH_SEPARATOR, get_include_path() );        
+        if ( true === self::_require( $filename, $dirs ) ) {
+            return;
+        }
+        
+        return false;
+    }
+    
+    /**
+     *
+     * @param string $filename
+     * @param array $dirs
+     * @return boolean 
+     */
+    protected static function _require( $filename, Array $dirs ) {
+        $manager = Yasc_Autoloader_Manager::getInstance();        
+        $prefix = $manager->getPrefix( $filename );
+        $prefixPath = $dirs[$prefix];
+
+        if ( false === empty( $prefixPath ) ) {
+            $file = realpath( $prefixPath . '/' . basename( $filename ) );
+            if ( true === is_file( $file ) ) {
+                require_once $file;
                 return true;
+            }            
+        }
+        
+        $found = false;
+        
+        foreach ( $dirs as $ns => $path ) {
+            $file = realpath( $path . '/' . $filename );
+            if ( true === is_file( $file ) ) {
+                require_once $file;
+                $found = true;                
+                break;
             }
         }
-
-        return false;
+        
+        return $found;
     }
 }

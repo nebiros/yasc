@@ -4,7 +4,7 @@
  *
  * @author nebiros
  */
-class Foo {
+class Model_Foo {
     public function __construct() {}
     
     public function doSomething() {

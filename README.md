@@ -7,6 +7,47 @@ and highly influenced by [zend framework](http://framework.zend.com/), the routi
 [limonade's](http://www.limonade-php.net/) code, is a tiny framework that uses _user defined_ functions as actions 
 (like in the MVC pattern) and _annotations_ to route the requested url to a function.
 
+Features
+--------
+* Functions based.
+* RESTful.
+* Tiny ^_^.
+* Routing system based on regex patterns, named params, pairs param (like zf).
+* Talks a little bit like a duck.
+* View helpers.
+* Function helpers.
+* Layouts support.
+* Class autoloading based on [PHP Standards Working Group](http://groups.google.com/group/php-standards/web/psr-0-final-proposal).
+* Models support.
+
+## Default project structure.
+yasc uses this project structure:
+
+    app.php
+    views/
+        helpers/
+    models/
+
+If you create these folders in your project they are auto-loaded in your application. Default *namespaces*:
+
+    helpers/Helper_*
+    models/Model_*
+
+## Duck typing.
+I saw that invoking the requested function with a lot of arguments is too ugly and a little 
+bit verbose (just a little?), so I add some *accessors* to be used in each function.
+
+```php
+<?php
+
+Yasc_App::view() // Access the view object inside your function.
+Yasc_App::params() // Get all route params.
+Yasc_App::params( "key" ) // Get param "key" value, also, you can specify a default value as the second argument of this static method.
+Yasc_App::config() // App config.
+Yasc_App::viewHelper() // Get a view helper, like Layout, Url, or some of your own.
+Yasc_App::functionHelper() // Get a function helper, like Flash, this helper is a stack of messages, errors, notices, etc.
+```
+
 Prerequisites
 -------------
 
@@ -65,28 +106,28 @@ require_once '../library/Yasc.php';
 /**
  * @GET( '/' )
  */
-function index( $view, $params ) {
+function index() {
     echo 'Hello World!';
 }
 
 /**
  * @POST( '/' )
  */
-function create( $view, $params ) {
+function create() {
     // save something.
 }
 
 /**
  * @PUT( '/' )
  */
-function update( $view, $params ) {
+function update() {
     // update something.
 }
 
 /**
  * @DELETE( '/' )
  */
-function destroy( $view, $params ) {
+function destroy() {
     // delete something.
 }
 ```
@@ -94,47 +135,41 @@ function destroy( $view, $params ) {
 Configuration
 -------------
 
-yasc uses this project structure:
-
-    app.php
-    views/
-        helpers/
-    models/
-
-If you create those folders you don't need to add each one to yasc.
-
 ```php
 <?php
 
 /**
  * Function to configure some yasc options. This function is optional you don't
  * need to write it in your app script if you don't want.
- * 
- * @param Yasc_App_Config $config
  */
-function configure( $config ) {
+function configure() {
     // * You can add a layout, a layout is just a .phtml file that represents
     // the site template.
-    $config->setLayoutScript( dirname( __FILE__ ) . '/layouts/default.phtml' );
-        // * If you want to use a stream wrapper to convert markup of mostly-PHP 
-        // templates into PHP prior to include(), seems like is a little bit slow,
-        // so by default is off.
-        // ->setViewStream( true );
-        // 
-        // * You can add more than one folder to store views, each view script
-        // is a .phtml file.
-        // ->addViewsPath( dirname( __FILE__ ) . '/extra_views' );
-        // 
-        // * You can add more than one path of view helpers and set a
-        // class prefix for the path added.
-        // ->addViewHelpersPath( dirname( __FILE__ ) . '/../library/My/View/Helper', 'My_View_Helper' );
-        // 
-        // or if you don't want a class prefix just leave it blank
-        // ->addViewHelpersPath( dirname( __FILE__ ) . '/extra_views/helpers' );
-        // 
-        // * Add extra options to the configuration object, like some $mysql connection 
-        // resource ...
-        // ->addOption( "db", $mysql );
+    Yasc_App::config()->setLayoutScript( dirname( __FILE__ ) . '/layouts/default.phtml' );
+    
+    // * If you want to use a stream wrapper to convert markup of mostly-PHP 
+    // templates into PHP prior to include(), seems like is a little bit slow,
+    // so by default is off.
+    // ->setViewStream( true );
+    // 
+    // * You can add more than one folder to store views, each view script
+    // is a .phtml file.
+    // ->addViewsPath( dirname( __FILE__ ) . '/extra_views' );
+    // 
+    // * You can add more than one path of view helpers and set a
+    // class prefix for the path added.
+    // ->addViewHelpersPath( dirname( __FILE__ ) . '/../library/My/View/Helper', 'My_View_Helper' );
+    // 
+    // or if you don't want a class prefix just leave it blank
+    // ->addViewHelpersPath( dirname( __FILE__ ) . '/extra_views/helpers' );
+    // 
+    // * Added a models folder.
+    // ->addModelsPath( dirname( __FILE__ ) . '/models' );
+    // ->addModelsPath( dirname( __FILE__ ) . '/extra_models/My/Model', 'My_Model' );
+    // 
+    // * Add extra options to the configuration object, like some $mysql connection 
+    // resource ...
+    // ->addOption( "db", $mysql );
 }
 ```
 
@@ -146,25 +181,15 @@ Advanced Examples
 
 /**
  * @GET( '/' )
- *
- * Yasc pass to each script function three arguments, $view, $params and $config,
- * $view argument is a Yasc_View object, a simple class to render .phtml scripts
- * and other stuff to handle views, $params is an associative array with
- * the url parameters and the $config argument is a Yasc_App_Config object, you
- * can get options from the configuration function.
- * 
- * @param Yasc_View $view
- * @param array $params
- * @param Yasc_App_Config $config
  */
-function index( $view, $params, $config ) {
+function index() {
     // Use layout view helper to disable the layout or use Yasc_Layout object
     // Yasc_Layout::getInstance()->disable(), Yasc_Layout uses singleton pattern.    
-    $view->layout()->disable();
+    Yasc_App::view()->layout()->disable();
     
     // Get the mysql resource from this app configuration option.
     // 
-    // $mysql = $config->getOption( "db" );
+    // $mysql = Yasc_App::config()->getOption( "db" );
     // 
     // ... do some sql operation.
     
@@ -176,29 +201,25 @@ function index( $view, $params, $config ) {
  * 
  * You can route the same url to another function using a different request
  * method.
- * 
  */
-function save_index( $view, $params ) {
-    $view->layout()->disable();
+function save_index() {
+    Yasc_App::view()->layout()->disable();
     
     echo '<pre>';
     echo 'post: ';
     var_dump( $_POST );
     echo 'params: ';
-    var_dump( $params );
+    var_dump( Yasc_App::params() );
     echo '</pre>';
 }
 
 /**
  * @GET( '/tales' )
- *
- * @param Yasc_View $view
- * @param array $params
  */
-function tales( $view, $params ) {    
+function tales() {    
     // You can add variables to the view object and get his value on
     // the view script using the variable $this, like: $this->tales.
-    $view->tales = 'oh! I\'m a view variable!';
+    Yasc_App::view()->tales = 'oh! I\'m a view variable!';
 
     // Render a view script, a view script is a .phtml file where you can mix
     // php and html, the V in the MVC model, in this example the view files
@@ -206,52 +227,46 @@ function tales( $view, $params ) {
     // 
     // This view calls a view helper (Tales), so check views/helpers/Tales.php 
     // to see what it does.
-    $view->render( 'tales' );
+    Yasc_App::view()->render( 'tales' );
 }
 
 /**
  * @GET( '/tales/:lol' )
  * @POST( '/woot' ) // Ignored, yasc only uses the first annotation found.
  * 
- * Named params, you can access those via $params argument.
+ * Named params, you can access those via Yasc_App::params() argument.
  * 
  * Matches: /tales/foo" and /tales/bar
- *
- * @param Yasc_View $view
- * @param array $params
  */
-function tales1( $view, $params ) {
-    $view->layout()->disable();
+function tales1() {
+    Yasc_App::view()->layout()->disable();
     
-    echo '<hr>lol value: ' . $params['lol'];
-    $view->tales = 'oh! I\'m a view variable!';
+    echo '<hr>lol value: ' . Yasc_App::params( 'lol');
+    Yasc_App::view()->tales = 'oh! I\'m a view variable!';
     
     // instance of a model.
-    $foo = new Foo();
-    $view->helloModel = $foo->doSomething();
+    $foo = new Model_Foo();
+    Yasc_App::view()->helloModel = $foo->doSomething();
     
     // Render a view without the layout.
-    $view->render( 'tales' );
+    Yasc_App::view()->render( 'tales' );
 }
 
 /**
  * @GET( '/tales/:lol/id/:id' )
- * 
- * @param Yasc_View $view
- * @param array $params
  */
-function tales2( $view, $params ) {
-    $view->layout()->disable();
+function tales2() {
+    Yasc_App::view()->layout()->disable();
     
-    echo '<hr>lol value: ' . $params['lol'];
-    echo '<hr>id value: ' . $params['id'];
+    echo '<hr>lol value: ' . Yasc_App::params( 'lol' );
+    echo '<hr>id value: ' . Yasc_App::params( 'id' );
 }
 
 /**
  * @POST( '/tales3' )
  */
 function tales3() {
-    $view->layout()->disable();
+    Yasc_App::view()->layout()->disable();
     
     echo '<pre>';
     echo 'post: ';
@@ -261,15 +276,13 @@ function tales3() {
 
 /**
  * @GET( '/foo' )
- * 
- * @param Yasc_View $view
  */
-function foo( $view ) {
+function foo() {
     // Render view script foo, this view script calls the view helper class Foo,
     // this view helper render a view helper script inside and return his content
     // to this view, a view helper script is just another .phtml file, if you don't
     // want to create a whole html string inside the helper ;).
-    $view->render( 'foo' );
+    Yasc_App::view()->render( 'foo' );
 }
 
 /**
@@ -283,16 +296,13 @@ function foo( $view ) {
  * https://github.com/sofadesign/limonade/blob/master/lib/limonade.php
  * 
  * Matches: /regex/id/26/name/juan
- * 
- * @param Yasc_View $view
- * @param array $params
  */
-function regex( $view, $params ) {
-    $view->layout()->disable();
+function regex() {
+    Yasc_App::view()->layout()->disable();
     
     echo '<pre>';
     echo 'params: ';
-    var_dump( $params );
+    var_dump( Yasc_App::params() );
     echo '</pre>';
 }
 
@@ -303,20 +313,17 @@ function regex( $view, $params ) {
  * through numeric indexes, in the same order as in the pattern.
  * 
  * Matches: /say/hello/to/world
- * 
- * @param Yasc_View $view
- * @param array $params
  */
-function single_asterisk( $view, $params ) {
-    $view->layout()->disable();
+function single_asterisk() {
+    Yasc_App::view()->layout()->disable();
     
     echo '<pre>';
     echo 'params: ';
-    var_dump( $params );
+    var_dump( Yasc_App::params() );
     echo 'hello: ';
-    var_dump( $params[0] ); // hello
+    var_dump( Yasc_App::params( 0 ) ); // hello
     echo 'world: ';
-    var_dump( $params[1] ); // world
+    var_dump( Yasc_App::params( 1 ) ); // world
     echo '</pre>';    
 }
 
@@ -324,20 +331,17 @@ function single_asterisk( $view, $params ) {
  * @GET( '/download/*.*' )
  * 
  * Matches: /download/file.xml
- * 
- * @param Yasc_View $view
- * @param array $params
  */
-function download( $view, $params ) {
-    $view->layout()->disable();
+function download() {
+    Yasc_App::view()->layout()->disable();
     
     echo '<pre>';
     echo 'params: ';
-    var_dump( $params );
+    var_dump( Yasc_App::params() );
     echo 'filename: ';
-    var_dump( $params[0] ); // file
+    var_dump( Yasc_App::params( 0 ) ); // file
     echo 'ext: ';
-    var_dump( $params[1] ); // xml
+    var_dump( Yasc_App::params( 1 ) ); // xml
     echo '</pre>';    
 }
 
@@ -346,39 +350,33 @@ function download( $view, $params ) {
  * 
  * The double wildcard '**' matches a string like this one: my/friend/juan/badass,
  * this string is treated as pairs, this way: param1/value1/param2/value2 etc, like
- * Zend Framework does, so, via $params argument you can get those values using
+ * Zend Framework does, so, via Yasc_App::params() argument you can get those values using
  * each key.
  * 
  * Matches: /writing/hello/to/my/friends/from/limonade/you_guys/roxor
- * 
- * @param Yasc_View $view
- * @param array $params
  */
-function pairs( $view, $params ) {
-    $view->layout()->disable();
+function pairs() {
+    Yasc_App::view()->layout()->disable();
     
     echo '<pre>';
     echo 'params: ';
-    var_dump( $params );
+    var_dump( Yasc_App::params() );
     echo 'single wildcard: ';
-    var_dump( $params[0] ); // hello
+    var_dump( Yasc_App::params( 0 ) ); // hello
     echo 'param my: ';
-    var_dump( $params['my'] ); // friend
+    var_dump( Yasc_App::params( 'my' ) ); // friend
     echo 'param from: ';
-    var_dump( $params['from'] ); // limonade
+    var_dump( Yasc_App::params( 'from' ) ); // limonade
     echo 'param you_guys: ';
-    var_dump( $params['you_guys'] ); // roxor
+    var_dump( Yasc_App::params( 'you_guys' ) ); // roxor
     echo '</pre>';    
 }
 
 /**
  * @GET( '/update' )
- * 
- * @param Yasc_View $view
- * @param array $params
  */
-function form_put( $view ) {
-    $view->render( "update" );
+function update() {
+    Yasc_App::view()->render( "update" );
     
     // Use '_method' parameter in POST requests when PUT or DELETE methods 
     // are not supported.
@@ -395,34 +393,26 @@ function form_put( $view ) {
 
 /**
  * @PUT( '/update' )
- * 
- * @param Yasc_View $view
- * @param array $params
- * @param Yasc_App_Config $config
  */
-function save_put( $view, $params, $config ) {
-    $view->layout()->disable();
+function save_update() {
+    Yasc_App::view()->layout()->disable();
     
-    // $mysql = $config->getOption( "db" );
+    // $mysql = Yasc_App::config()->getOption( "db" );
     // $mysql->update( 'table1', array( 'first_name' => $_POST['first_name'], 'last_name' => $_POST['last_name'] ) );
     
-    header( 'Location: ' . $view->http( array( 'uri' => '/update' ) ) );
+    header( 'Location: ' . Yasc_App::viewHelper( 'url' )->url( array( 'uri' => '/update' ) ) );
 }
 
 /**
  * @DELETE( '/delete' )
- * 
- * @param Yasc_View $view
- * @param array $params
- * @param Yasc_App_Config $config
  */
-function destroy( $view, $params, $config ) {
-    $view->layout()->disable();
+function destroy() {
+    Yasc_App::view()->layout()->disable();
     
-    // $mysql = $config->getOption( "db" );
+    // $mysql = Yasc_App::config()->getOption( "db" );
     // $mysql->delete( 'table1', "id = {$_POST["id"]}" );
     
-    header( 'Location: ' . $view->http( array( 'uri' => '/update' ) ) );
+    header( 'Location: ' . Yasc_App::viewHelper( 'url' )->url( array( 'uri' => '/update' ) ) );
 }
 ```
 

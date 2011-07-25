@@ -15,7 +15,7 @@
  *
  * @category Yasc
  * @package Yasc
- * @copyright Copyright (c) 2010 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
+ * @copyright Copyright (c) 2010 - 2011 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
  * @version $Id$
  * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
  */
@@ -24,7 +24,7 @@
  * View.
  *
  * @package Yasc
- * @copyright Copyright (c) 2010 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
+ * @copyright Copyright (c) 2010 - 2011 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
  * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
  * @author nebiros
  */
@@ -49,25 +49,26 @@ class Yasc_View {
      * @var string
      */
     protected $_buffer = null;
-
-    /**
-     *
-     * @var array
-     */
-    protected $_helpers = array();
     
     /**
      *
      * @var bool
      */
-    protected $_useViewStream = false;    
+    protected $_useViewStream = false;   
+    
+    /**
+     *
+     * @var Yasc_App_HelperManager
+     */
+    protected $_helperManager = null;
 
     /**
      *
      * @param Yasc_App $app 
      */
-    public function __construct( Yasc_App $app ) {
-        $this->_app = $app;
+    public function __construct() {
+        $this->_app = Yasc_App::getInstance();
+        $this->_helperManager = $this->_app->getHelperManager();
         $this->_useViewStream = $this->_app->getConfig()->useViewStream();
 
         if ( true === $this->_useViewStream ) {
@@ -114,8 +115,7 @@ class Yasc_View {
             return $this->$name;
         }
 
-        trigger_error( "Undefined property '{$name}'", E_USER_NOTICE );
-        
+        trigger_error( "Undefined property '{$name}'", E_USER_NOTICE );        
         return null;
     }
 
@@ -136,7 +136,7 @@ class Yasc_View {
      * @param array $arguments
      */
     public function __call( $name, $arguments ) {
-        $helper = $this->getHelper( $name );
+        $helper = $this->_helperManager->getHelper( $name );
         return call_user_func_array( array( $helper, $name ), $arguments );
     }
 
@@ -188,41 +188,6 @@ class Yasc_View {
     public function setBuffer( $buffer ) {
         $this->_buffer = $buffer;
         return $this;
-    }
-
-    /**
-     *
-     * @param string $name
-     * @return Yasc_View_Helper_AbstractHelper
-     */
-    public function getHelper( $name ) {
-        $className = trim( ucfirst( ( string ) $name ) );
-        $paths = $this->_app->getConfig()->getViewHelperPaths();
-
-        foreach ( $paths as $classPrefix => $path ) {
-            $class = $classPrefix . $className;
-            if ( true === class_exists( $class ) && false === isset( $this->_helpers[$name] ) ) {
-                $this->_helpers[$name] = new $class();
-                if ( true === method_exists( $this->_helpers[$name], 'setView' ) ) {
-                    $this->_helpers[$name]->setView( $this );
-                }
-                break;
-            }
-        }
-
-        if ( null === $this->_helpers[$name] ) {
-            throw new Yasc_View_Exception( "Helper '{$name}' not found" );
-        }
-
-        return $this->_helpers[$name];
-    }
-
-    /**
-     *
-     * @return array
-     */
-    public function getHelpers() {
-        return $this->_helpers;
     }
 
     /**

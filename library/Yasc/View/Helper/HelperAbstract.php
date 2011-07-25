@@ -16,26 +16,34 @@
  * @category Yasc
  * @package Yasc_View
  * @subpackage Yasc_View_Helper
- * @copyright Copyright (c) 2010 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
+ * @copyright Copyright (c) 2010 - 2011 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
  * @version $Id$
  * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
  */
 
 /**
+ * Abstract helper.
  *
  * @package Yasc_View
  * @subpackage Yasc_View_Helper
- * @copyright Copyright (c) 2010 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
+ * @copyright Copyright (c) 2010 - 2011 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
  * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
  * @author nebiros
  */
-class Yasc_View_Helper_Http extends Yasc_View_Helper_AbstractHelper {
+class Yasc_View_Helper_HelperAbstract implements Yasc_View_Helper {
     /**
      *
-     * @return Yasc_Request_Http 
+     * @var Yasc_View
      */
-    public function http( Array $options = null ) {
-        $http = new Yasc_Request_Http( $options['server_name'], $options['uri'] );
-        return $http;
+    public $view = null;
+
+    /**
+     *
+     * @param Yasc_View $view
+     * @return Yasc_View_Helper_HelperAbstract 
+     */
+    public function setView( Yasc_View $view ) {
+        $this->view = $view;
+        return $this;
     }
 }

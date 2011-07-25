@@ -16,7 +16,7 @@
  * @category Yasc
  * @package Yasc
  * @subpackage Yasc_App
- * @copyright Copyright (c) 2010 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
+ * @copyright Copyright (c) 2010 - 2011 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
  * @version $Id$
  * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
  */
@@ -26,14 +26,11 @@
  *
  * @package Yasc
  * @subpackage Yasc_App
- * @copyright Copyright (c) 2010 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
+ * @copyright Copyright (c) 2010 - 2011 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
  * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
  * @author nebiros
  */
 class Yasc_App_Config {
-    const TYPE_PATH_HELPER = 1;
-    const TYPE_PATH_MODEL = 2;
-    
     /**
      *
      * @var array
@@ -41,11 +38,10 @@ class Yasc_App_Config {
     protected $_options = array();
     
     /**
-     * Views folders.
      *
-     * @var array
+     * @var bool
      */
-    protected $_viewsPaths = array();
+    protected $_useViewStream = false;
 
     /**
      * Layout.
@@ -53,27 +49,19 @@ class Yasc_App_Config {
      * @var string
      */
     protected $_layoutScript = null;
-
-    /**
-     *
-     * @var array
-     */
-    protected $_viewHelperPaths = array();
     
     /**
      *
-     * @var bool
+     * @var Yasc_Autoloader_Manager
      */
-    protected $_useViewStream = false;
-    
+    public $_autoloaderManager = null;
+
     /**
      *
-     * @var array
+     * @param Yasc_App $app 
      */
-    protected $_modelPaths = array();
-
-    public function __construct() {
-        $this->addDefaultPaths();
+    public function __construct( Yasc_Autoloader_Manager $autoloaderManager ) {
+        $this->_autoloaderManager = $autoloaderManager;
     }
     
     /**
@@ -127,14 +115,33 @@ class Yasc_App_Config {
     public function addOption( $key, $value = null ) {
         $this->_options[$key] = $value;
         return $this;
-    }    
+    }
+    
+    /**
+     *
+     * @param bool $flag
+     * @return Yasc_App_Config 
+     */
+    public function setViewStream( $flag = false ) {
+        $this->_useViewStream = $flag;
+        return $this;
+    }
+    
+    /**
+     *
+     * @return bool
+     */
+    public function useViewStream() {
+        return $this->_useViewStream;
+    }
+        
 
     /**
      *
      * @return array
      */
     public function getViewsPaths() {
-        return $this->_viewsPaths;
+        return $this->_autoloaderManager->getPaths( Yasc_Autoloader_Manager::PATH_TYPE_VIEW );
     }
 
     /**
@@ -143,8 +150,8 @@ class Yasc_App_Config {
      * @return Yasc_App_Config
      */
     public function setViewsPath( $path ) {
-        $this->_viewsPaths = array();
-        $this->addViewHelpersPath( $path );
+        $this->_autoloaderManager->setPath( Yasc_Autoloader_Manager::PATH_TYPE_VIEW, $path );
+        $this->_autoloaderManager->addPath( Yasc_Autoloader_Manager::PATH_TYPE_VIEW_HELPER, $path );
         return $this;
     }
 
@@ -154,17 +161,7 @@ class Yasc_App_Config {
      * @return Yasc_App_Config
      */
     public function addViewsPath( $path ) {
-        if ( false === is_string( $path ) ) {
-            return false;
-        }
-        
-        $path = realpath( $path );
-        
-        if ( false === is_dir( $path ) ) {
-            throw new Yasc_App_Exception( "Views folder '{$path}' not found" );
-        }
-
-        $this->_viewsPaths[] = $path;
+        $this->_autoloaderManager->addPath( Yasc_Autoloader_Manager::PATH_TYPE_VIEW, $path );
         return $this;
     }
 
@@ -199,76 +196,83 @@ class Yasc_App_Config {
 
         return $this;
     }
-
+    
     /**
      *
      * @return array
      */
     public function getViewHelperPaths() {
-        return $this->_viewHelperPaths;
-    }
-
-    /**
-     *
-     * @param string $classPrefix
-     * @return string
-     */
-    public function getViewHelpersPath( $classPrefix = 'Yasc_View_Helper_' ) {
-        return $this->_getClassPath( self::TYPE_PATH_HELPER, $classPrefix );
-    }
-
-    /**
-     *
-     * @param string $path
-     * @param string $classPrefix
-     * @return Yasc_App_Config
-     */
-    public function setViewHelpersPath( $path, $classPrefix = null ) {
-        $this->resetViewHelperPaths()->addViewHelpersPath( $path, $classPrefix );
-        return $this;
-    }
-
-    /**
-     *
-     * @param string $path
-     * @param string $classPrefix
-     * @return Yasc_App_Config
-     */
-    public function addViewHelpersPath( $path, $classPrefix = null ) {
-        $this->_addClassPath( self::TYPE_PATH_HELPER, $path, $classPrefix );
-        return $this;
-    }
-
-    /**
-     *
-     * @return Yasc_App_Config
-     */
-    public function resetViewHelperPaths() {
-        $includePaths = explode( PATH_SEPARATOR, get_include_path() );
-        $paths = array_diff( $includePaths, $this->_viewHelperPaths );
-        $this->_viewHelperPaths = array();
-        // Set default view helpers.
-        $this->addViewHelpersPath( realpath( dirname( __FILE__ ) . '/../View/Helper' ), 'Yasc_View_Helper' );
-        set_include_path( implode( PATH_SEPARATOR, $paths ) );
-        return $this;
+        return $this->_autoloaderManager->getPaths( Yasc_Autoloader_Manager::PATH_TYPE_VIEW_HELPER );
     }
     
     /**
      *
-     * @param bool $flag
+     * @param string $classPrefix
+     * @return string 
+     */
+    public function getViewHelpersPath( $classPrefix = null ) {
+        return $this->_autoloaderManager->getPath( Yasc_Autoloader_Manager::PATH_TYPE_VIEW_HELPER, $classPrefix );
+    }
+    
+    /**
+     *
+     * @param string $path
+     * @param string $classPrefix
      * @return Yasc_App_Config 
      */
-    public function setViewStream( $flag = false ) {
-        $this->_useViewStream = $flag;
+    public function setViewHelpersPath( $path, $classPrefix = null ) {
+        $this->_autoloaderManager->setPath( Yasc_Autoloader_Manager::PATH_TYPE_VIEW_HELPER, $path, $classPrefix );
+        return $this;
+    }    
+    
+    /**
+     *
+     * @param string $path
+     * @param string $classPrefix
+     * @return Yasc_App_Config 
+     */
+    public function addViewHelpersPath( $path, $classPrefix = null ) {
+        $this->_autoloaderManager->addPath( Yasc_Autoloader_Manager::PATH_TYPE_VIEW_HELPER, $path, $classPrefix );
         return $this;
     }
     
     /**
      *
-     * @return bool
+     * @return array
      */
-    public function useViewStream() {
-        return $this->_useViewStream;
+    public function getFunctionHelperPaths() {
+        return $this->_autoloaderManager->getPaths( Yasc_Autoloader_Manager::PATH_TYPE_FUNCTION_HELPER );
+    }
+    
+    /**
+     *
+     * @param string $classPrefix
+     * @return string 
+     */
+    public function getFunctionHelpersPath( $classPrefix = null ) {
+        return $this->_autoloaderManager->getPath( Yasc_Autoloader_Manager::PATH_TYPE_FUNCTION_HELPER, $classPrefix );
+    }
+    
+    /**
+     *
+     * @param string $path
+     * @param string $classPrefix
+     * @return Yasc_App_Config 
+     */    
+    public function setFunctionHelpersPath( $path, $classPrefix = null ) {
+        $this->_autoloaderManager->setPath( Yasc_Autoloader_Manager::PATH_TYPE_FUNCTION_HELPER, $path, $classPrefix );
+        return $this;
+    }    
+    
+    /**
+     *
+     * @param string $path
+     * @param string $classPrefix
+     * @return Yasc_App_Config 
+     */
+    public function addFunctionHelpersPath( $path, $classPrefix = null ) {
+        $this->_autoloaderManager->addPath( Yasc_Autoloader_Manager::PATH_TYPE_FUNCTION_HELPER, $path, $classPrefix );
+        return $this;
     }
     
     /**
@@ -276,11 +280,17 @@ class Yasc_App_Config {
      * @return array
      */
     public function getModelPaths() {
-        return $this->_modelPaths;
+        return $this->_autoloaderManager->getPaths( Yasc_Autoloader_Manager::PATH_TYPE_MODEL );
     }
 
-    public function setModelPaths( $path ) {
-        $this->_modelPaths = ( array ) $path;
+    /**
+     *
+     * @param string $path
+     * @param string $classPrefix
+     * @return Yasc_App_Config 
+     */
+    public function setModelsPath( $path, $classPrefix = null ) {
+        $this->_autoloaderManager->setPath( Yasc_Autoloader_Manager::PATH_TYPE_MODEL, $path, $classPrefix );
         return $this;
     }
         
@@ -290,94 +300,8 @@ class Yasc_App_Config {
      * @param string $classPrefix
      * @return Yasc_App_Config
      */    
-    public function addModelPath( $path, $classPrefix = null ) {
-        $this->_addClassPath( self::TYPE_PATH_MODEL, $path, $classPrefix );
+    public function addModelsPath( $path, $classPrefix = null ) {
+        $this->_autoloaderManager->addPath( Yasc_Autoloader_Manager::PATH_TYPE_MODEL, $path, $classPrefix );
         return $this;
-    }
-    
-    /**
-     *
-     * @param int $type
-     * @param string $path
-     * @param string $classPrefix 
-     */
-    protected function _addClassPath( $type, $path, $classPrefix = null ) {
-        if ( false === is_string( $path ) ) {
-            return false;
-        }
-        
-        $path = realpath( $path );
-
-        if ( null !== $classPrefix ) {
-            $prefixFolder = str_replace( '_', DIRECTORY_SEPARATOR, $classPrefix );
-            $path = realpath( str_replace( $prefixFolder, '', $path ) );
-        }
-        
-        if ( false === is_dir( $path ) ) {
-            throw new Yasc_App_Exception( "Class path folder '{$path}' not found" );
-        }
-
-        if ( '_' != substr( $classPrefix, -1 ) && false === empty( $classPrefix ) ) {
-            $classPrefix .= '_';
-        }        
-        
-        switch ( ( int ) $type ) {
-            case self::TYPE_PATH_HELPER:
-                $this->_viewHelperPaths[$classPrefix] = $path;
-                break;
-            
-            case self::TYPE_PATH_MODEL:
-                $this->_modelPaths[$classPrefix] = $path;
-                break;
-        }
-
-        if ( false === array_search( $path, explode( PATH_SEPARATOR, get_include_path() ) ) ) {
-            set_include_path( implode( PATH_SEPARATOR, array(
-                $path,
-                get_include_path()
-            ) ) );
-        }        
-    }
-    
-    /**
-     *
-     * @param int $type
-     * @param string $classPrefix
-     * @return string 
-     */
-    public function _getClassPath( $type, $classPrefix = null ) {
-        if ( '_' != substr( $classPrefix, -1 ) && false === empty( $classPrefix ) ) {
-            $classPrefix .= '_';
-        }
-        
-        switch ( ( int ) $type ) {
-            case self::TYPE_PATH_HELPER:
-                return $this->_viewHelperPaths[$classPrefix];
-                break;
-            
-            case self::TYPE_PATH_MODEL:
-                return $this->_modelPaths[$classPrefix];
-                break;
-        }
-    }
-    
-    /**
-     * Add default folders if they exist. This is the current structure:
-     * 
-     * app.php
-     * views/
-     *   helpers/
-     * models/
-     * 
-     */
-    public function addDefaultPaths() {
-        // default views folder.
-        $this->addViewsPath( realpath( APPLICATION_PATH . '/views' ) );
-        // default view helpers path.
-        $this->addViewHelpersPath( realpath( APPLICATION_PATH . '/views/helpers' ) );
-        // default models folder.
-        $this->addModelPath( realpath( APPLICATION_PATH . '/models' ) );        
-        // built in helpers.
-        $this->addViewHelpersPath( realpath( dirname( __FILE__ ) . '/../View/Helper' ), 'Yasc_View_Helper' );
-    }
+    }   
 }

@@ -16,7 +16,7 @@
  * @category Yasc
  * @package Yasc_View
  * @subpackage Yasc_View_Helper
- * @copyright Copyright (c) 2010 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
+ * @copyright Copyright (c) 2010 - 2011 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
  * @version $Id$
  * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
  */
@@ -25,11 +25,13 @@
  *
  * @package Yasc_View
  * @subpackage Yasc_View_Helper
- * @copyright Copyright (c) 2010 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
+ * @copyright Copyright (c) 2010 - 2011 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
  * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
  * @author nebiros
  */
-class Yasc_View_Helper_UserAgent extends Yasc_View_Helper_AbstractHelper {
+class Yasc_View_Helper_UserAgent extends Yasc_View_Helper_HelperAbstract {
+    public function __construct() {}
+    
     /**
      *
      * @return Yasc_Http_UserAgent 

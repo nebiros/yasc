@@ -15,7 +15,7 @@
  *
  * @category Yasc
  * @package Yasc
- * @copyright Copyright (c) 2010 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
+ * @copyright Copyright (c) 2010 - 2011 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
  * @version $Id$
  * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
  */
@@ -35,12 +35,12 @@ Yasc_Autoloader::register();
  * Yet Another Sinatra Clone.
  *
  * @package Yasc
- * @copyright Copyright (c) 2010 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
+ * @copyright Copyright (c) 2010 - 2011 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
  * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
  * @author nebiros
  */
 class Yasc {
-    const VERSION = '0.1.5';
+    const VERSION = '0.1.7';
 
     /**
      * App.
@@ -57,7 +57,7 @@ class Yasc {
      */
     public function getApp() {
         if ( null === $this->_app ) {
-            $this->_app = new Yasc_App();
+            $this->_app = Yasc_App::getInstance();
         }
 
         return $this->_app;

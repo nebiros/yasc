@@ -15,7 +15,7 @@
  *
  * @category Yasc
  * @package Yasc
- * @copyright Copyright (c) 2010 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
+ * @copyright Copyright (c) 2010 - 2011 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
  * @version $Id$
  * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
  */
@@ -24,12 +24,30 @@
  * App.
  *
  * @package Yasc
- * @copyright Copyright (c) 2010 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
+ * @copyright Copyright (c) 2010 - 2011 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
  * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
  * @author nebiros
  */
 class Yasc_App {
     const CONFIGURATION_FUNCTION_NAME = 'configure';
+    
+    /**
+     *
+     * @var Yasc_App
+     */
+    protected static $_instance = null;    
+    
+    /**
+     * 
+     * @var Yasc_Autoloader_Manager
+     */
+    protected $_autoloaderManager = null;
+    
+    /**
+     *
+     * @var Yasc_App_HelperManager 
+     */
+    protected $_helperManager = null;
 
     /**
      * Yasc configuration.
@@ -62,25 +80,56 @@ class Yasc_App {
      * @var Yasc_Layout
      */
     protected $_layout = null;
+    
+    /**
+     *
+     * @return Yasc_App
+     */
+    public static function getInstance() {
+        if ( null === self::$_instance ) {
+            self::$_instance = new self();
+            self::$_instance->_initialize();
+        }
 
-    public function  __construct() {}
+        return self::$_instance;
+    }
+    
+    /**
+     * 
+     * @return void
+     */
+    protected function _initialize() {
+        session_start();
+        $this->_autoloaderManager = Yasc_Autoloader_Manager::getInstance();
+        $this->_helperManager = new Yasc_App_HelperManager( $this->_autoloaderManager );
+    }
 
+    protected function __construct() {}
+    protected function __clone() {}
+    
+    /**
+     *
+     * @return Yasc_Autoloader_Manager
+     */
+    public function getAutoloaderManager() {
+        return $this->_autoloaderManager;
+    }
+    
+    
+    /**
+     *
+     * @return Yasc_App_HelperManager
+     */
+    public function getHelperManager() {
+        return $this->_helperManager;
+    }
+    
     /**
      *
      * @return Yasc_App_Config
      */
     public function getConfig() {
         return $this->_config;
-    }
-
-    /**
-     *
-     * @param Yasc_App_Config $config
-     * @return Yasc_App
-     */
-    public function setConfig( Yasc_App_Config $config ) {
-        $this->_config = $config;
-        return $this;
     }
 
     /**
@@ -93,30 +142,10 @@ class Yasc_App {
 
     /**
      *
-     * @param array $functions
-     * @return Yasc_App 
-     */
-    public function setFunctions( Array $functions ) {
-        $this->_functions = $_functions;
-        return $this;
-    }
-
-    /**
-     *
      * @return Yasc_Function
      */
     public function getFunction() {
         return $this->_function;
-    }
-
-    /**
-     *
-     * @param Yasc_Function $function
-     * @return Yasc_App
-     */
-    public function setFunction( Yasc_Function $function ) {
-        $this->_function = $function;
-        return $this;
     }
 
     /**
@@ -129,30 +158,10 @@ class Yasc_App {
 
     /**
      *
-     * @param Yasc_View $view
-     * @return Yasc_App
-     */
-    public function setView( Yasc_View $view ) {
-        $this->_view = $view;
-        return $this;
-    }
-
-    /**
-     *
      * @return Yasc_Layout
      */
     public function getLayout() {
         return $this->_layout;
-    }
-
-    /**
-     *
-     * @param Yasc_Layout $layout
-     * @return Yasc_App 
-     */
-    public function setLayout( Yasc_Layout $layout ) {
-        $this->_layout = $layout;
-        return $this;
     }
 
     /**
@@ -173,7 +182,7 @@ class Yasc_App {
      * @return void
      */
     protected function _configure() {
-        $this->_config = new Yasc_App_Config();
+        $this->_config = new Yasc_App_Config( $this->_autoloaderManager );
         
         if ( false === function_exists( self::CONFIGURATION_FUNCTION_NAME ) ) {
             return;
@@ -214,7 +223,7 @@ class Yasc_App {
      * @return void
      */
     protected function _processRoutes() {
-        $router = new Yasc_Router( $this );
+        $router = new Yasc_Router();
         $this->_function = $router->route();
     }
 
@@ -225,7 +234,7 @@ class Yasc_App {
      */
     protected function _dispatch() {
         if ( null === $this->_view ) {
-            $this->_view = new Yasc_View( $this );
+            $this->_view = new Yasc_View();
         }        
         
         $this->_execute();
@@ -240,6 +249,7 @@ class Yasc_App {
 
         if ( null !== $buffer ) {
             echo $buffer;
+            exit();
         }        
     }
 
@@ -249,6 +259,54 @@ class Yasc_App {
      * @return void
      */
     protected function _execute() {
-        $this->_function->invoke( $this->_view, $this->_function->getParams(), $this->_config );
+        $this->_function->invoke();
+    }
+    
+    /**
+     *
+     * @return Yasc_View
+     */
+    public static function view() {
+        return self::getInstance()->getView();
+    }
+    
+    /**
+     *
+     * @param mixed $key
+     * @param mixed $default
+     * @return mixed 
+     */
+    public static function params( $key = null, $default = null ) {
+        if ( null === $key ) {
+            return self::getInstance()->getFunction()->getParams();
+        }
+        
+        return self::getInstance()->getFunction()->getParam( $key, $default );
+    }
+    
+    /**
+     *
+     * @return Yasc_App_Config
+     */
+    public static function config() {
+        return self::getInstance()->getConfig();
+    }
+    
+    /**
+     *
+     * @param string $name
+     * @return Yasc_View_Helper_HelperAbstract 
+     */
+    public static function viewHelper( $name ) {
+        return self::getInstance()->getHelperManager()->getHelper( $name, Yasc_App_HelperManager::HELPER_TYPE_VIEW );
+    }
+    
+    /**
+     *
+     * @param string $name
+     * @return mixed 
+     */
+    public static function functionHelper( $name ) {
+        return self::getInstance()->getHelperManager()->getHelper( $name, Yasc_App_HelperManager::HELPER_TYPE_FUNCTION );
     }
 }
