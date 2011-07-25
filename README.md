@@ -234,7 +234,7 @@ function tales() {
  * @GET( '/tales/:lol' )
  * @POST( '/woot' ) // Ignored, yasc only uses the first annotation found.
  * 
- * Named params, you can access those via Yasc_App::params() argument.
+ * Named params, you can access those via Yasc_App::params() static method.
  * 
  * Matches: /tales/foo" and /tales/bar
  */
@@ -350,8 +350,8 @@ function download() {
  * 
  * The double wildcard '**' matches a string like this one: my/friend/juan/badass,
  * this string is treated as pairs, this way: param1/value1/param2/value2 etc, like
- * Zend Framework does, so, via Yasc_App::params() argument you can get those values using
- * each key.
+ * Zend Framework does, so, via Yasc_App::params() static method you can get those 
+ * values using each key.
  * 
  * Matches: /writing/hello/to/my/friends/from/limonade/you_guys/roxor
  */
