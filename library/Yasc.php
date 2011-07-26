@@ -40,7 +40,7 @@ Yasc_Autoloader::register();
  * @author nebiros
  */
 class Yasc {
-    const VERSION = '0.1.7';
+    const VERSION = '0.1.8';
 
     /**
      * App.

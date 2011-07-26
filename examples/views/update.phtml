@@ -1,3 +1,6 @@
+<?php if ( $this->flash->has() ): ?>
+    <?php echo $this->flash ?>
+<?php endif; ?>
 <form id="put" name="put" action="<?php echo $this->url( array( "uri" => "/update" ) ) ?>" method="post">
     <p>First name: <input type="text" name="first_name" /></p>
     <p>Last name: <input type="text" name="last_name" /></p>

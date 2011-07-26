@@ -310,9 +310,9 @@ class Yasc_Autoloader_Manager {
         
         // built in helpers.
         $this->addPath( 
-            self::PATH_TYPE_VIEW_HELPER, 
-            realpath( dirname( __FILE__ ) . '/../View/Helper' ), 
-            'Yasc_View_Helper' 
+            self::PATH_TYPE_FUNCTION_HELPER, 
+            realpath( dirname( __FILE__ ) . '/../Function/Helper' ), 
+            'Yasc_Function_Helper' 
         );
         $this->addPath( 
             self::PATH_TYPE_VIEW_HELPER, 

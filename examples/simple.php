@@ -238,7 +238,11 @@ function pairs() {
  * @GET( '/update' )
  */
 function update() {
-    Yasc_App::view()->render( "update" );
+    /* @var $flash Yasc_Function_Helper_Flash */
+    $flash = Yasc_App::functionHelper( 'flash' );
+    Yasc_App::view()->flash = $flash;
+    
+    return Yasc_App::view()->render( "update" );    
     
     // Use '_method' parameter in POST requests when PUT or DELETE methods 
     // are not supported.
@@ -261,6 +265,10 @@ function save_update() {
     
     // $mysql = Yasc_App::config()->getOption( 'db' );
     // $mysql->update( 'table1', array( 'first_name' => $_POST['first_name'], 'last_name' => $_POST['last_name'] ) );
+    
+    /* @var $flash Yasc_Function_Helper_Flash */
+    $flash = Yasc_App::functionHelper( 'flash' );
+    $flash->message( 'Done.' );
     
     header( 'Location: ' . Yasc_App::viewHelper( 'url' )->url( array( 'uri' => '/update' ) ) );
 }
