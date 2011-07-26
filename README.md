@@ -75,6 +75,8 @@ Add a function and a pattern using an annotation for your application index,
 your script will be something like this:
 
 ```php
+<?php
+
 // Include Yasc.
 require_once 'yasc/Yasc.php';
 
