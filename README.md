@@ -51,7 +51,7 @@ Yasc_App::functionHelper() // Get a function helper, like Flash, this helper is 
 Prerequisites
 -------------
 
-yasc requires PHP 5.2.x or later.
+yasc requires PHP 5.2.4 or later.
 
 Installation
 ------------
