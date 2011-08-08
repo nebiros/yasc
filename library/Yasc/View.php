@@ -64,7 +64,6 @@ class Yasc_View {
 
     /**
      *
-     * @param Yasc_App $app 
      */
     public function __construct() {
         $this->_app = Yasc_App::getInstance();
@@ -137,6 +136,11 @@ class Yasc_View {
      */
     public function __call( $name, $arguments ) {
         $helper = $this->_helperManager->getHelper( $name );
+        
+        if ( false === is_callable( array( $helper, $name ) ) ) {
+            throw new Yasc_View_Exception( "Helper '{$name}' isn't callable" );
+        }
+        
         return call_user_func_array( array( $helper, $name ), $arguments );
     }
 
@@ -217,10 +221,10 @@ class Yasc_View {
      * Render view.
      *
      * @param string $filename
-     * @return void
+     * @return string
      */
     public function render( $filename ) {
-        $this->_processViewScript( $filename );
+        return $this->_processViewScript( $filename );
     }
 
     /**

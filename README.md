@@ -191,13 +191,14 @@ function configure() {
     // class prefix for the path added.
     // ->addViewHelpersPath( dirname( __FILE__ ) . '/../library/My/View/Helper', 'My_View_Helper' );
     // 
-    // or if you don't want a class prefix just leave it blank
+    // or if you don't want a class prefix just leave it blank.
     // ->addViewHelpersPath( dirname( __FILE__ ) . '/extra_views/helpers' );
+    //
+    // * Function helpers, second argument is a prefix class.
+    // ->addFunctionHelpersPath( dirname( __FILE__ ) . '/extra_function_helpers' );
     // 
-    // * Add models folder.
+    // * Add models folder, second argument is a prefix class.
     // ->addModelsPath( dirname( __FILE__ ) . '/models' );
-    // 
-    // * Add models with a prefix class.
     // ->addModelsPath( dirname( __FILE__ ) . '/extra_models/My/Model', 'My_Model' );
     // 
     // * Add extra options to the configuration object, like some $mysql connection 

@@ -64,10 +64,10 @@ class Yasc_Http_UserAgent {
      * 
      */
     public function __construct() {
-        $this->_agent = ( true === isset( $_SERVER["HTTP_USER_AGENT"] ) ) ? strtolower( $_SERVER["HTTP_USER_AGENT"] ) : null;
+        $this->_agent = ( true === isset( $_SERVER['HTTP_USER_AGENT'] ) ) ? strtolower( $_SERVER['HTTP_USER_AGENT'] ) : null;
 
         if ( null === $this->_agent ) {
-            throw new Yasc_Http_Exception( "User agent is empty ._." );
+            throw new Yasc_Http_Exception( 'User agent is empty ._.' );
         }
     }
 
@@ -101,9 +101,9 @@ class Yasc_Http_UserAgent {
      */
     public function getProperties() {
         return array(
-            "agent" => $this->_agent,
-            "type" => $this->_type,
-            "version" => $this->_version,
+            'agent' => $this->_agent,
+            'type' => $this->_type,
+            'version' => $this->_version,
         );
     }
     
@@ -125,14 +125,14 @@ class Yasc_Http_UserAgent {
      * @return bool
      */
     public function isBlackBerry() {
-        if ( false === stripos( $this->_agent, "blackberry" ) ) {
+        if ( false === stripos( $this->_agent, 'blackberry' ) ) {
             return false;
         }
 
-        $parts = explode( " ", $this->_agent );
+        $parts = explode( ' ', $this->_agent );
         $bb = $parts[self::BB_TYPE];
-        list( $name, $this->_version ) = explode( "/", $bb );
-        $this->_type = preg_replace( "/[^\d+]/", "", $name );
+        list( $name, $this->_version ) = explode( '/', $bb );
+        $this->_type = preg_replace( '/[^\d+]/', '', $name );
 
         return true;
     }
@@ -142,18 +142,18 @@ class Yasc_Http_UserAgent {
      * @return bool
      */
     public function isAndroid() {
-        if ( false === stripos( $this->_agent, "android" ) ) {
+        if ( false === stripos( $this->_agent, 'android' ) ) {
             return false;
         }
 
-        if ( false === preg_match( "/(.+) \((.+)\) (.+) \((.+)\) (.+) (.+)/", $this->_agent, $matches ) ) {
+        if ( false === preg_match( '/(.+) \((.+)\) (.+) \((.+)\) (.+) (.+)/', $this->_agent, $matches ) ) {
             return false;
         }
 
-        $parts = explode( "; ", $matches[self::ANDROID_TYPE] );
+        $parts = explode( '; ', $matches[self::ANDROID_TYPE] );
 
         $this->_type = $parts[self::ANDROID_TYPE_TYPE];
-        list( $name, $this->_version ) = explode( " ", $parts[self::ANDROID_TYPE_VERSION] );
+        list( $name, $this->_version ) = explode( ' ', $parts[self::ANDROID_TYPE_VERSION] );
 
         return true;
     }

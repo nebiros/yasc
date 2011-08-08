@@ -180,7 +180,7 @@ class Yasc_App_HelperManager {
         }
 
         if ( null === $this->_helpers[$name] ) {
-            throw new Yasc_View_Exception( "Helper '{$name}' not found in this paths '" . implode( ", ", $paths ) . "'" );
+            throw new Yasc_App_Exception( "Helper '{$name}' not found in this paths '" . implode( ", ", $paths ) . "'" );
         }
 
         return $this->_helpers[$name];

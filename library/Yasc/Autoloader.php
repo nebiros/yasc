@@ -44,7 +44,7 @@ class Yasc_Autoloader {
      * @param string $className
      * @return void
      */
-	public static function loadClass( $className ) {
+    public static function loadClass( $className ) {
         if ( $className == 'Yasc' ) {
             require 'Yasc.php';
             return;
@@ -72,7 +72,7 @@ class Yasc_Autoloader {
         if ( false === self::loadFile( $filename ) ) {
             return;
         }
-	}
+    }
     
     /**
      *

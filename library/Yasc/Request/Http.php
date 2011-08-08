@@ -38,6 +38,7 @@ class Yasc_Request_Http {
     protected $_scheme = 'http';
 
     /**
+     * Default port.
      *
      * @var int
      */
@@ -91,10 +92,9 @@ class Yasc_Request_Http {
     /**
      *
      * @param string $serverName 
-     * @param string $uri 
      */
-    public function __construct( $serverName = null, $uri = null ) {
-        $this->processUrl( $serverName, $uri );
+    public function __construct( $serverName = null ) {
+        $this->processUrl( $serverName );
     }
 
     /**
@@ -202,8 +202,8 @@ class Yasc_Request_Http {
         }
         
         if ( false !== ( $port = strstr( $serverName, $this->_urlVariable ) ) ) {
-            $serverName = str_replace( $port, "", $serverName );
-            $port = str_replace( $this->_urlVariable, "", $port );            
+            $serverName = str_replace( $port, '', $serverName );
+            $port = str_replace( $this->_urlVariable, '', $port );            
         } else {
             $port = $_SERVER['SERVER_PORT'];
         }
@@ -212,23 +212,23 @@ class Yasc_Request_Http {
 
         if ( gethostbyname( $serverName ) != $_SERVER['SERVER_ADDR'] ) {
             if ( $port == $this->_sslPort ) {
-                $url .= "s";
+                $url .= 's';
             }
         } else {
             switch ( true ) {
-                case ( true === isset( $_SERVER['HTTPS'] ) && ( $_SERVER['HTTPS'] == "on" || $_SERVER['HTTPS'] === true ) ):
-                case ( true === isset( $_SERVER['HTTP_SCHEME'] ) && ( $_SERVER['HTTP_SCHEME'] == "https" ) ):
+                case ( true === isset( $_SERVER['HTTPS'] ) && ( $_SERVER['HTTPS'] == 'on' || $_SERVER['HTTPS'] === true ) ):
+                case ( true === isset( $_SERVER['HTTP_SCHEME'] ) && ( $_SERVER['HTTP_SCHEME'] == 'https' ) ):
                 case ( true === isset( $_SERVER['SERVER_PORT'] ) && ( $_SERVER['SERVER_PORT'] == 443 ) ):
-                    $url .= "s";
+                    $url .= 's';
                     break;
-            }            
+            }
         }
 
-        $url .= "://";
+        $url .= '://';
 
         if ( ( $port != $this->_defaultPort )
             && $port != $this->_sslPort ) {
-            $url .= $serverName . ":" . $port;
+            $url .= $serverName . ':' . $port;
         } else {
             $url .= $serverName;
         }
@@ -241,18 +241,14 @@ class Yasc_Request_Http {
         
         if ( $uri[0] != $this->_urlDelimiter ) {
             $uri = $this->_urlDelimiter . $uri;
-        }
-        
-        if ( true === isset( $_SERVER['PATH_INFO'] ) ) {
-            $url .= $_SERVER['SCRIPT_NAME'];
-        }
+        }        
         
         $url .= $uri;
 
         $this->_url = trim( $url, $this->_urlDelimiter );
         $this->_urlComponents = parse_url( $this->_url );
 
-        $urlPattern = str_replace( $_SERVER['SCRIPT_NAME'], '', $this->_urlComponents['path'] );
+        $urlPattern = str_replace( $_SERVER['SCRIPT_NAME'], '', rtrim( $this->_urlComponents['path'], '/' ) );
         $this->_urlPattern = ( $urlPattern ) ? $urlPattern : $this->_urlDelimiter;
 
         return $this;
