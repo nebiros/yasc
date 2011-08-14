@@ -285,15 +285,17 @@ class Yasc_Autoloader_Manager {
             return false;
         }
         
-        $path = realpath( $path );
+        $tmp = $path;
+        $path = realpath( $tmp );
 
         if ( null !== $classPrefix ) {
             $prefixFolder = str_replace( '_', DIRECTORY_SEPARATOR, $classPrefix );
-            $path = realpath( str_replace( $prefixFolder, '', $path ) );
+            $tmp = str_replace( $prefixFolder, '', $path );
+            $path = realpath( $tmp );
         }
         
         if ( false === is_dir( $path ) ) {
-            throw new Yasc_App_Exception( "Path '{$path}' not found" );
+            throw new Yasc_App_Exception( "Path '{$tmp}' not found" );
         }
         
         return $path;
