@@ -20,7 +20,8 @@ Features
 * Class autoloading based on [PHP Standards Working Group](http://groups.google.com/group/php-standards/web/psr-0-final-proposal).
 * Models support.
 
-## Default project structure.
+Default project structure
+-------------------------
 yasc uses this project structure:
 
     app.php
@@ -33,7 +34,8 @@ If you create these folders in your project they are auto-loaded in your applica
     helpers/Helper_*
     models/Model_*
 
-## Duck typing.
+Duck typing
+-----------
 I saw that invoking the requested function with a lot of arguments is too ugly and a little 
 bit verbose (just a little?), so I add some *accessors* to be used in each function.
 

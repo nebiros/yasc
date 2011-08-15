@@ -29,16 +29,17 @@
  * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
  * @author nebiros
  */
-class Yasc_View_Helper_Url extends Yasc_View_Helper_HelperAbstract {
+class Yasc_View_Helper_Flash extends Yasc_View_Helper_HelperAbstract {
     public function __construct() {}
 
     /**
      *
      * @param array $options
-     * @return Yasc_Request_Http 
+     * @return Yasc_Function_Helper_Flash
      */
-    public function url( Array $options = null ) {
-        $http = new Yasc_Request_Http( $options['server_name'], $options['uri'] );
-        return $http;
+    public function flash( Array $options = null ) {
+        /* @var $flash Yasc_Function_Helper_Flash */
+        $flash = Yasc_App::functionHelper( "flash" );
+        return $flash;
     }
 }

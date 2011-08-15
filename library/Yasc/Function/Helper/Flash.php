@@ -42,12 +42,6 @@ class Yasc_Function_Helper_Flash {
      */
     protected static $_instance = null;
 
-    /**
-     *
-     * @var string
-     */
-    protected $_xhtml = null;
-
     protected function __construct() {}
     protected function __clone() {}
 
@@ -111,7 +105,7 @@ class Yasc_Function_Helper_Flash {
     /**
      *
      * @param string $type
-     * @return Yasc_Function_Helper_Flash
+     * @return array
      */
     public function get( $type = self::TYPE_MESSAGE ) {
         return $_SESSION[__CLASS__][$type];
@@ -130,7 +124,7 @@ class Yasc_Function_Helper_Flash {
     /**
      *
      * @param string $type
-     * @return Yasc_Function_Helper_Flash
+     * @return bool
      */    
     public function has( $type = self::TYPE_MESSAGE ) {
         return ( false === empty( $_SESSION[__CLASS__][$type] ) ) ? true : false;
@@ -177,25 +171,26 @@ class Yasc_Function_Helper_Flash {
     }
 
     /**
-     *
-     * @param string $listClass
-     * @param string $type     
+     * Draw a <ul> list.
+     * 
+     * @param string $type
+     * @param string $className
      * @return string
      */
-    public function draw( $listClass = null, $type = self::TYPE_MESSAGE ) {
+    public function draw( $type = self::TYPE_MESSAGE, $className = null ) {
 		if ( true === empty( $_SESSION[__CLASS__][$type] ) ) {
 			return "";
 		}
 
-		$this->_xhtml .= "<ul class=\"{$listClass}\">";
+		$xhtml = "<ul class=\"{$className}\">";
 
 		foreach ( $_SESSION[__CLASS__][$type] as $msg ) {
-			$this->_xhtml .= "<li>{$msg}</li>";
+			$xhtml .= "<li>{$msg}</li>";
 		}
 
-		$this->_xhtml .= "</ul>";
+		$xhtml .= "</ul>";
         $this->clear( $type );
-		return $this->_xhtml;
+		return $xhtml;
     }
 
     public function __toString() {
