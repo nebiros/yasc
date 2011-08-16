@@ -103,7 +103,7 @@ Maybe you want to *hide* your script file from the URL, http://app.com/app.php/s
 and get something fancier like: http://app.com/some/thing, ok, well, create a [VirtualHost](http://httpd.apache.org/docs/2.0/vhosts/) 
 and add a [.htaccess](http://corz.org/serv/tricks/htaccess2.php) file to your application folder like this:
 
-### Virtual host configuration:
+### Virtual host configuration
 
     <VirtualHost *:80>
        DocumentRoot "/path/to/your/application"
@@ -116,7 +116,7 @@ and add a [.htaccess](http://corz.org/serv/tricks/htaccess2.php) file to your ap
        </Directory>
     </VirtualHost>
 
-### .htaccess file:
+### .htaccess file
 
     RewriteEngine On
     RewriteCond %{REQUEST_FILENAME} -s [OR]
