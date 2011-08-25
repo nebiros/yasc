@@ -161,10 +161,9 @@ class Yasc_App_HelperManager {
                 $paths = $this->getViewHelperPaths();
                 break;
         }
-        Zend_Debug::dump(__METHOD__);        
-        Zend_Debug::dump($paths);
+
         $className = trim( ucfirst( ( string ) $name ) );
-        Zend_Debug::dump($className);
+
         foreach ( $paths as $classPrefix => $path ) {
             $class = $classPrefix . $className;
             
