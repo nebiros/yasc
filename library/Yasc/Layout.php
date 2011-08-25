@@ -59,9 +59,8 @@ class Yasc_Layout {
      */
     protected $_disabled = false;
 
-    final protected function __construct() {}
-
-    final protected function  __clone() {}
+    protected function __construct() {}
+    protected function __clone() {}
 
     /**
      *
@@ -80,7 +79,7 @@ class Yasc_Layout {
      * @return string
      */
     public function getLayout() {
-        return $this->_layout;
+        return self::$_instance->_layout;
     }
 
     /**
@@ -89,8 +88,8 @@ class Yasc_Layout {
      * @return Yasc_Layout
      */
     public function setLayout( $layout ) {
-        $this->_layout = $layout;
-        return $this;
+        self::$_instance->_layout = $layout;
+        return self::$_instance;
     }
 
     /**
@@ -98,7 +97,7 @@ class Yasc_Layout {
      * @return string
      */
     public function getLayoutPath() {
-        return $this->_layoutPath;
+        return self::$_instance->_layoutPath;
     }
 
     /**
@@ -107,14 +106,14 @@ class Yasc_Layout {
      * @return Yasc_Layout
      */
     public function setLayoutPath( $layoutPath ) {
-        $this->_layoutPath = realpath( $layoutPath );
+        self::$_instance->_layoutPath = realpath( $layoutPath );
 
-        if ( false === is_file( $this->_layoutPath ) ) {
-            throw new Yasc_Exception( "Layout file '{$this->_layoutPath}' not found" );
+        if ( false === is_file( self::$_instance->_layoutPath ) ) {
+            throw new Yasc_Exception( "Layout file '{self::$_instance->_layoutPath}' not found" );
         }
 
-        $this->_layout = str_replace( '.phtml', '', basename( $this->_layoutPath ) );
-        return $this;
+        self::$_instance->_layout = str_replace( '.phtml', '', basename( self::$_instance->_layoutPath ) );
+        return self::$_instance;
     }
 
     /**
@@ -122,7 +121,7 @@ class Yasc_Layout {
      * @return string
      */
     public function getContent() {
-        return $this->_content;
+        return self::$_instance->_content;
     }
 
     /**
@@ -131,8 +130,8 @@ class Yasc_Layout {
      * @return Yasc_Layout
      */
     public function setContent( $content ) {
-        $this->_content = $content;
-        return $this;
+        self::$_instance->_content = $content;
+        return self::$_instance;
     }
 
     /**
@@ -140,7 +139,7 @@ class Yasc_Layout {
      * @return void
      */
     public function disable() {
-        $this->_disabled = true;
+        self::$_instance->_disabled = true;
     }
 
     /**
@@ -148,6 +147,6 @@ class Yasc_Layout {
      * @return bool
      */
     public function isDisabled() {
-        return $this->_disabled;
+        return self::$_instance->_disabled;
     }
 }

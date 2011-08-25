@@ -256,7 +256,12 @@ class Yasc_Router_Route {
         }
 
         $combination = array_combine( $paramValues, $this->_matches );
-        $params = array_replace( $params, $combination );
+        
+        if ( true === function_exists( 'array_replace' ) ) {
+            $params = array_replace( $params, $combination );
+        } else {
+            $params = Yasc_Util::arrayReplace( $params, $combination );
+        }
         
         $pairs = array();
         

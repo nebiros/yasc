@@ -34,12 +34,6 @@ class Yasc_App_HelperManager {
     const HELPER_TYPE_FUNCTION = 2;
     
     /**
-     * 
-     * @var Yasc_Autoloader_Manager
-     */
-    protected $_autoloaderManager = null;
-    
-    /**
      *
      * @var array
      */
@@ -47,10 +41,9 @@ class Yasc_App_HelperManager {
     
     /**
      *
-     * @param Yasc_Autoloader_Manager $autoloaderManager 
      */
-    public function __construct( Yasc_Autoloader_Manager $autoloaderManager ) {
-        $this->_autoloaderManager = $autoloaderManager;
+    public function __construct() {
+        $this->_addBuiltInHelpers();
     }
     
     /**
@@ -58,7 +51,8 @@ class Yasc_App_HelperManager {
      * @return array
      */
     public function getViewHelperPaths() {
-        return $this->_autoloaderManager->getPaths( Yasc_Autoloader_Manager::PATH_TYPE_VIEW_HELPER );
+        return Yasc_Autoloader_Manager::getInstance()->getPaths( 
+            Yasc_Autoloader_Manager::PATH_TYPE_VIEW_HELPER );
     }
     
     /**
@@ -67,7 +61,8 @@ class Yasc_App_HelperManager {
      * @return string 
      */
     public function getViewHelpersPath( $classPrefix = null ) {
-        return $this->_autoloaderManager->getPath( Yasc_Autoloader_Manager::PATH_TYPE_VIEW_HELPER, $classPrefix );
+        return Yasc_Autoloader_Manager::getInstance()->getPath( 
+            Yasc_Autoloader_Manager::PATH_TYPE_VIEW_HELPER, $classPrefix );
     }
     
     /**
@@ -77,7 +72,8 @@ class Yasc_App_HelperManager {
      * @return Yasc_App_HelperManager 
      */
     public function setViewHelpersPath( $path, $classPrefix = null ) {
-        $this->_autoloaderManager->setPath( Yasc_Autoloader_Manager::PATH_TYPE_VIEW_HELPER, $path, $classPrefix );
+        Yasc_Autoloader_Manager::getInstance()->setPath( 
+            Yasc_Autoloader_Manager::PATH_TYPE_VIEW_HELPER, $path, $classPrefix );
         return $this;
     }    
     
@@ -88,7 +84,8 @@ class Yasc_App_HelperManager {
      * @return Yasc_App_HelperManager 
      */
     public function addViewHelpersPath( $path, $classPrefix = null ) {
-        $this->_autoloaderManager->addPath( Yasc_Autoloader_Manager::PATH_TYPE_VIEW_HELPER, $path, $classPrefix );
+        Yasc_Autoloader_Manager::getInstance()->addPath( 
+            Yasc_Autoloader_Manager::PATH_TYPE_VIEW_HELPER, $path, $classPrefix );
         return $this;
     }
     
@@ -97,7 +94,8 @@ class Yasc_App_HelperManager {
      * @return array
      */
     public function getFunctionHelperPaths() {
-        return $this->_autoloaderManager->getPaths( Yasc_Autoloader_Manager::PATH_TYPE_FUNCTION_HELPER );
+        return Yasc_Autoloader_Manager::getInstance()->getPaths( 
+            Yasc_Autoloader_Manager::PATH_TYPE_FUNCTION_HELPER );
     }
     
     /**
@@ -106,7 +104,8 @@ class Yasc_App_HelperManager {
      * @return string 
      */
     public function getFunctionHelpersPath( $classPrefix = null ) {
-        return $this->_autoloaderManager->getPath( Yasc_Autoloader_Manager::PATH_TYPE_FUNCTION_HELPER, $classPrefix );
+        return Yasc_Autoloader_Manager::getInstance()->getPath( 
+            Yasc_Autoloader_Manager::PATH_TYPE_FUNCTION_HELPER, $classPrefix );
     }
     
     /**
@@ -116,7 +115,8 @@ class Yasc_App_HelperManager {
      * @return Yasc_App_HelperManager 
      */    
     public function setFunctionHelpersPath( $path, $classPrefix = null ) {
-        $this->_autoloaderManager->setPath( Yasc_Autoloader_Manager::PATH_TYPE_FUNCTION_HELPER, $path, $classPrefix );
+        Yasc_Autoloader_Manager::getInstance()->setPath( 
+            Yasc_Autoloader_Manager::PATH_TYPE_FUNCTION_HELPER, $path, $classPrefix );
         return $this;
     }    
     
@@ -127,7 +127,8 @@ class Yasc_App_HelperManager {
      * @return Yasc_App_HelperManager 
      */
     public function addFunctionHelpersPath( $path, $classPrefix = null ) {
-        $this->_autoloaderManager->addPath( Yasc_Autoloader_Manager::PATH_TYPE_FUNCTION_HELPER, $path, $classPrefix );
+        Yasc_Autoloader_Manager::getInstance()->addPath( 
+            Yasc_Autoloader_Manager::PATH_TYPE_FUNCTION_HELPER, $path, $classPrefix );
         return $this;
     }  
 
@@ -136,8 +137,10 @@ class Yasc_App_HelperManager {
      * @return Yasc_App_HelperManager
      */
     public function resetHelpersPaths() {
-        $this->_autoloaderManager->clearClassPaths( Yasc_Autoloader_Manager::PATH_TYPE_VIEW_HELPER )
-            ->clearClassPaths( Yasc_Autoloader_Manager::PATH_TYPE_FUNCTION_HELPER );
+        Yasc_Autoloader_Manager::getInstance()->clearIncludePaths( 
+            Yasc_Autoloader_Manager::PATH_TYPE_VIEW_HELPER )
+            ->clearIncludePaths( 
+            Yasc_Autoloader_Manager::PATH_TYPE_FUNCTION_HELPER );
         return $this;
     }    
     
@@ -158,15 +161,16 @@ class Yasc_App_HelperManager {
                 $paths = $this->getViewHelperPaths();
                 break;
         }
-        
+        Zend_Debug::dump(__METHOD__);        
+        Zend_Debug::dump($paths);
         $className = trim( ucfirst( ( string ) $name ) );
-        
+        Zend_Debug::dump($className);
         foreach ( $paths as $classPrefix => $path ) {
             $class = $classPrefix . $className;
             
             if ( true === class_exists( $class ) && false === isset( $this->_helpers[$name] ) ) {
                 if ( true === is_callable( array( $class, 'getInstance' ) ) ) {
-                    $this->_helpers[$name] = $class::getInstance();
+                    $this->_helpers[$name] = call_user_func( array( $class, 'getInstance' ) );
                 } else {
                     $this->_helpers[$name] = new $class();
                 }
@@ -180,7 +184,7 @@ class Yasc_App_HelperManager {
         }
 
         if ( null === $this->_helpers[$name] ) {
-            throw new Yasc_App_Exception( "Helper '{$name}' not found in this paths '" . implode( ", ", $paths ) . "'" );
+            throw new Yasc_App_Exception( "Helper '{$name}' not found in this paths: " . implode( ", ", $paths ) );
         }
 
         return $this->_helpers[$name];
@@ -192,5 +196,23 @@ class Yasc_App_HelperManager {
      */
     public function getHelpers() {
         return $this->_helpers;
+    }
+    
+    /**
+     * 
+     * @return void
+     */
+    protected function _addBuiltInHelpers() {
+        // built in helpers.
+        Yasc_Autoloader_Manager::getInstance()->addPath( 
+            Yasc_Autoloader_Manager::PATH_TYPE_FUNCTION_HELPER, 
+            realpath( dirname( __FILE__ ) . '/../Function/Helper' ), 
+            'Yasc_Function_Helper' 
+        );
+        Yasc_Autoloader_Manager::getInstance()->addPath( 
+            Yasc_Autoloader_Manager::PATH_TYPE_VIEW_HELPER, 
+            realpath( dirname( __FILE__ ) . '/../View/Helper' ), 
+            'Yasc_View_Helper' 
+        );        
     }
 }

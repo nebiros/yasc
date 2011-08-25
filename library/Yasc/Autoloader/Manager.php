@@ -61,20 +61,13 @@ class Yasc_Autoloader_Manager {
     public static function getInstance() {
         if ( null === self::$_instance ) {
             self::$_instance = new self();
-            self::$_instance->_initialize();
         }
 
         return self::$_instance;
     }
     
-    /**
-     * 
-     */
-    protected function _initialize() {
-        $this->_addDefaultPaths();
-    }
-    
     protected function __construct() {}
+    protected function __clone() {}
     
     /**
      *
@@ -83,17 +76,17 @@ class Yasc_Autoloader_Manager {
      * @param string $classPrefix
      * @return Yasc_Autoloader_Manager 
      */
-    public function setClassPath( $type, $path, $classPrefix = null ) {
+    public function setIncludePath( $type, $path, $classPrefix = null ) {
         if ( false === is_numeric( $type ) ) {
             throw new Yasc_App_Exception( 'Path type must be a number' );
         }
         
-        if ( false === ( $path = $this->_setupPath( $path, $classPrefix ) ) ) {
+        if ( false === ( $path = self::$_instance->_setupPath( $path, $classPrefix ) ) ) {
             return false;
         }
         
-        $this->clearClassPaths( $type )->addClassPath( $type, $path, $classPrefix );
-        return $this;
+        self::$_instance->clearIncludePaths( $type )->addIncludePath( $type, $path, $classPrefix );
+        return self::$_instance;
     }
 
     /**
@@ -103,18 +96,18 @@ class Yasc_Autoloader_Manager {
      * @param string|null $classPrefix
      * @return Yasc_Autoloader_Manager 
      */
-    public function addClassPath( $type, $path, $classPrefix = null ) {
+    public function addIncludePath( $type, $path, $classPrefix = null ) {
         if ( false === is_numeric( $type ) ) {
             throw new Yasc_App_Exception( 'Path type must be a number' );
         }
         
-        $classPrefix = $this->_setupClassPrefix( $classPrefix );
+        $classPrefix = self::$_instance->_setupClassPrefix( $classPrefix );
         
-        if ( false === ( $path = $this->_setupPath( $path, $classPrefix ) ) ) {
+        if ( false === ( $path = self::$_instance->_setupPath( $path, $classPrefix ) ) ) {
             return false;
         }
 
-        $this->_paths[$type][$classPrefix] = $path;
+        self::$_instance->_paths[$type][$classPrefix] = $path;
 
         if ( false === array_search( $path, explode( PATH_SEPARATOR, get_include_path() ) ) ) {
             set_include_path( implode( PATH_SEPARATOR, array(
@@ -123,7 +116,7 @@ class Yasc_Autoloader_Manager {
             ) ) );
         }
         
-        return $this;
+        return self::$_instance;
     }   
     
     /**
@@ -132,19 +125,20 @@ class Yasc_Autoloader_Manager {
      * @param string|null $classPrefix
      * @return Yasc_Autoloader_Manager 
      */
-    public function clearClassPath( $type, $classPrefix = null ) {
+    public function clearIncludePath( $type, $classPrefix = null ) {
         if ( false === is_numeric( $type ) ) {
             throw new Yasc_App_Exception( 'Path type must be a number' );
         }
         
-        $classPrefix = $this->_setupClassPrefix( $classPrefix );        
+        $classPrefix = self::$_instance->_setupClassPrefix( $classPrefix );        
         $includePaths = array_flip( explode( PATH_SEPARATOR, get_include_path() ) );        
-        unset( $includePaths[$this->_paths[$type][$classPrefix]], $this->_paths[$type][$classPrefix] );
+        unset( $includePaths[self::$_instance->_paths[$type][$classPrefix]], 
+            self::$_instance->_paths[$type][$classPrefix] );
         set_include_path( implode( PATH_SEPARATOR, array_keys( $includePaths ) ) );
         
         switch ( ( int ) $type ) {
             case self::PATH_TYPE_FUNCTION_HELPER:
-                $this->addPath( 
+                self::$_instance->addPath( 
                     self::PATH_TYPE_FUNCTION_HELPER, 
                     realpath( dirname( __FILE__ ) . '/../Function/Helper' ), 
                     'Yasc_Function_Helper' 
@@ -154,7 +148,7 @@ class Yasc_Autoloader_Manager {
             
             case self::PATH_TYPE_VIEW_HELPER:
             default:
-                $this->addPath( 
+                self::$_instance->addPath( 
                     self::PATH_TYPE_VIEW_HELPER, 
                     realpath( dirname( __FILE__ ) . '/../View/Helper' ), 
                     'Yasc_View_Helper' 
@@ -163,7 +157,7 @@ class Yasc_Autoloader_Manager {
                 break;
         }
         
-        return $this;
+        return self::$_instance;
     }
     
     /**
@@ -171,16 +165,16 @@ class Yasc_Autoloader_Manager {
      * @param type $type
      * @return Yasc_Autoloader_Manager 
      */
-    public function clearClassPaths( $type ) {
+    public function clearIncludePaths( $type ) {
         if ( false === is_numeric( $type ) ) {
             throw new Yasc_App_Exception( 'Path type must be a number' );
         }
         
         $includePaths = explode( PATH_SEPARATOR, get_include_path() );
-        $paths = array_diff( $includePaths, $this->_paths[$type] );
-        $this->_paths[$type] = array();
+        $paths = array_diff( $includePaths, self::$_instance->_paths[$type] );
+        self::$_instance->_paths[$type] = array();
         set_include_path( implode( PATH_SEPARATOR, $paths ) );              
-        return $this;
+        return self::$_instance;
     }
     
     /**
@@ -194,8 +188,8 @@ class Yasc_Autoloader_Manager {
             throw new Yasc_App_Exception( 'Path type must be a number' );
         }
         
-        $classPrefix = $this->_setupClassPrefix( $classPrefix );        
-        return $this->_paths[$type][$classPrefix];
+        $classPrefix = self::$_instance->_setupClassPrefix( $classPrefix );        
+        return self::$_instance->_paths[$type][$classPrefix];
     }   
     
     /**
@@ -210,9 +204,9 @@ class Yasc_Autoloader_Manager {
             throw new Yasc_App_Exception( 'Path type must be a number' );
         }
         
-        $this->clearClassPaths( $type );
-        $this->addPath( $type, $path, $classPrefix );
-        return $this;
+        self::$_instance->clearIncludePaths( $type )
+            ->addPath( $type, $path, $classPrefix );
+        return self::$_instance;
     }
     
     /**
@@ -227,18 +221,24 @@ class Yasc_Autoloader_Manager {
             throw new Yasc_App_Exception( 'Path type must be a number' );
         }
         
-        if ( false === ( $path = $this->_setupPath( $path ) ) ) {
+        if ( false === ( $path = self::$_instance->_setupPath( $path ) ) ) {
             return false;
         }
         
         if ( null !== $classPrefix ) {
-            $classPrefix = $this->_setupClassPrefix( $classPrefix );
-            $this->_paths[$type][$classPrefix] = $path;
+            $classPrefix = self::$_instance->_setupClassPrefix( $classPrefix );            
+            self::$_instance->_paths[$type] = array_reverse( self::$_instance->_paths[$type], true );
+            self::$_instance->_paths[$type][$classPrefix] = $path;
+            self::$_instance->_paths[$type] = array_reverse( self::$_instance->_paths[$type], true );
         } else {
-            $this->_paths[$type][] = $path;
+            if ( true === in_array( $path, self::$_instance->_paths[$type] ) ) {
+                return self::$_instance;
+            }
+            
+            array_unshift( self::$_instance->_paths[$type], $path );
         }
         
-        return $this;        
+        return self::$_instance;
     }
     
     /**
@@ -251,7 +251,7 @@ class Yasc_Autoloader_Manager {
             throw new Yasc_App_Exception( 'Path type must be a number' );
         }
         
-        return $this->_paths[$type];
+        return self::$_instance->_paths[$type];
     }
     
     /**
@@ -259,7 +259,7 @@ class Yasc_Autoloader_Manager {
      * @return array
      */
     public function getAllPaths() {
-        return $this->_paths;
+        return self::$_instance->_paths;
     }
     
     /**
@@ -302,72 +302,50 @@ class Yasc_Autoloader_Manager {
     }
     
     /**
-     * 
-     */
-    protected function _addDefaultPaths() {
-        // default paths, if they exist.
-        $this->addPath( self::PATH_TYPE_VIEW, realpath( APPLICATION_PATH . '/views' ) );
-        $this->addPath( self::PATH_TYPE_VIEW_HELPER, realpath( APPLICATION_PATH . '/views/helpers' ), 'Helper' );
-        $this->addPath( self::PATH_TYPE_MODEL, realpath( APPLICATION_PATH . '/models' ), 'Model' );
-        
-        // built in helpers.
-        $this->addPath( 
-            self::PATH_TYPE_FUNCTION_HELPER, 
-            realpath( dirname( __FILE__ ) . '/../Function/Helper' ), 
-            'Yasc_Function_Helper' 
-        );
-        $this->addPath( 
-            self::PATH_TYPE_VIEW_HELPER, 
-            realpath( dirname( __FILE__ ) . '/../View/Helper' ), 
-            'Yasc_View_Helper' 
-        );
-    }
-    
-    /**
      *
-     * @param mixed $class
+     * @param mixed $filename
      * @return string 
      */
-    public function getNs( $class ) {
-        return $this->_normalizePrefix( $class, true );
+    public function getNs( $filename ) {
+        return self::$_instance->_normalizePrefix( $filename, true );
     }
     
     /**
      *
-     * @param mixed $class
+     * @param mixed $filename
      * @return string 
      */
-    public function getPrefix( $class ) {
-        return $this->_normalizePrefix( $class );
+    public function getPrefix( $filename ) {
+        return self::$_instance->_normalizePrefix( $filename );
     }
     
     /**
      *
-     * @param mixed $class
+     * @param mixed $filename
      * @param bool $ns
      * @return string 
      */
-    protected function _normalizePrefix( $class, $ns = false ) {
-        if ( false === is_string( $class ) ) {
-            $class = get_class( $class );
+    protected function _normalizePrefix( $filename, $ns = false ) {
+        if ( false === is_string( $filename ) ) {
+            $filename = get_class( $filename );
         }
         
-        $parts = explode( '.', $class );
+        $parts = explode( '.', $filename );
 
         if ( false === empty( $parts ) ) {
             array_pop( $parts );
-            $class = $parts[0];
+            $filename = $parts[0];
         }
 
-        if ( strpos( $class, DIRECTORY_SEPARATOR ) ) {
-            $class = str_replace( DIRECTORY_SEPARATOR, '_', $class );
+        if ( strpos( $filename, DIRECTORY_SEPARATOR ) ) {
+            $className = str_replace( DIRECTORY_SEPARATOR, '_', $filename );
         }
         
         $tmp = array();
-        if ( strpos( $class, '_' ) ) {
-            $tmp = explode( '_', $class );
-        }        
-        
+        if ( strpos( $className, '_' ) ) {
+            $tmp = explode( '_', $className );
+        }
+
         if ( true === empty( $tmp ) ) {
             return  '';
         }

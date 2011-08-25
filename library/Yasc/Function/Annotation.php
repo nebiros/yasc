@@ -67,6 +67,12 @@ class Yasc_Function_Annotation {
      * @var string
      */
     protected $_pattern = null;
+    
+    /**
+     *
+     * @var bool
+     */
+    protected $_hasAnnotation = false;
 
     /**
      *
@@ -91,12 +97,20 @@ class Yasc_Function_Annotation {
     public function getPattern() {
         return $this->_pattern;
     }
+    
+    /**
+     *
+     * @return bool
+     */
+    public function hasAnnotation() {
+        return $this->_hasAnnotation;
+    }
 
     /**
      * Match function annotation.
      *
      * @param Yasc_Function $function
-     * @return Yasc_Function_Annotation
+     * @return bool
      */
     protected function _match( Yasc_Function $function ) {
         if ( preg_match( self::GET, $function->getDocComment(), $matches ) ) {
@@ -107,11 +121,14 @@ class Yasc_Function_Annotation {
             $function->setMethod( Yasc_Router::METHOD_PUT );
         } else if ( preg_match( self::DELETE, $function->getDocComment(), $matches ) ) {
             $function->setMethod( Yasc_Router::METHOD_DELETE );
+        } else {
+            return false;
         }
         
+        $this->_hasAnnotation = true;
         $this->_string = trim( $matches[self::ANNOTATION] );
         $this->_pattern = preg_replace( '/\'|"/', '', trim( $matches[self::PATTERN] ) );
-        return $this;
+        return true;
     }
 
     public function  __toString() {

@@ -23,6 +23,9 @@
 defined( 'APPLICATION_PATH' )
     || define( 'APPLICATION_PATH', realpath( getcwd() ) );
 
+defined( 'APPLICATION_SCRIPT' )
+    || define( 'APPLICATION_SCRIPT', $_SERVER['SCRIPT_NAME'] );
+
 set_include_path( implode( PATH_SEPARATOR, array(
     realpath( dirname( __FILE__ ) ),
     get_include_path()
@@ -40,7 +43,7 @@ Yasc_Autoloader::register();
  * @author nebiros
  */
 class Yasc {
-    const VERSION = '0.1.11';
+    const VERSION = '0.1.12';
 
     /**
      * App.

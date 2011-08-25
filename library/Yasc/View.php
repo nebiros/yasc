@@ -30,13 +30,6 @@
  */
 class Yasc_View {
     /**
-     * App class.
-     *
-     * @var Yasc_App
-     */
-    protected $_app = null;
-
-    /**
      * View script path.
      *
      * @var string
@@ -54,21 +47,13 @@ class Yasc_View {
      *
      * @var bool
      */
-    protected $_useViewStream = false;   
-    
-    /**
-     *
-     * @var Yasc_App_HelperManager
-     */
-    protected $_helperManager = null;
+    protected $_useViewStream = false; 
 
     /**
      *
      */
     public function __construct() {
-        $this->_app = Yasc_App::getInstance();
-        $this->_helperManager = $this->_app->getHelperManager();
-        $this->_useViewStream = $this->_app->getConfig()->useViewStream();
+        $this->_useViewStream = Yasc_App::getInstance()->getConfig()->useViewStream();
 
         if ( true === $this->_useViewStream ) {
             if ( false === in_array( 'view', stream_get_wrappers() ) ) {
@@ -135,7 +120,7 @@ class Yasc_View {
      * @param array $arguments
      */
     public function __call( $name, $arguments ) {
-        $helper = $this->_helperManager->getHelper( $name );
+        $helper = Yasc_App::getInstance()->getHelperManager()->getHelper( $name );
         
         if ( false === is_callable( array( $helper, $name ) ) ) {
             throw new Yasc_View_Exception( "Helper '{$name}' isn't callable" );
@@ -160,7 +145,7 @@ class Yasc_View {
     public function setViewScript( $filename ) {
         $this->_viewScript = null;
         
-        $folders = $this->_app->getConfig()->getViewsPaths();
+        $folders = Yasc_App::getInstance()->getConfig()->getViewsPaths();
 
         foreach ( $folders as $path ) {
             if ( true === is_file( realpath( $path . '/' . $filename . '.phtml' ) ) ) {

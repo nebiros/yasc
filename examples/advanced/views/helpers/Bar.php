@@ -1,11 +1,10 @@
 <?php
 
 /**
- * Tales.
  *
  * @author nebiros
  */
-class Helper_Tales extends Yasc_View_Helper_HelperAbstract {
+class Helper_Bar extends Yasc_View_Helper_HelperAbstract {
     /**
      * From the php manual:
      * 
@@ -19,7 +18,7 @@ class Helper_Tales extends Yasc_View_Helper_HelperAbstract {
      */
     public function __construct() {}
     
-    public function tales() {
-        return "I'm a view helper!, class: " . __CLASS__ . " -- " . __METHOD__;
+    public function bar() {
+        return 'hi from: ' . __METHOD__ . '!';
     }
 }

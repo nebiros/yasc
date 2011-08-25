@@ -46,7 +46,7 @@ class Yasc_Autoloader {
      */
     public static function loadClass( $className ) {
         if ( $className == 'Yasc' ) {
-            require 'Yasc.php';
+            require_once 'Yasc.php';
             return;
         }
 
@@ -77,23 +77,21 @@ class Yasc_Autoloader {
     /**
      *
      * @param string $filename
-     * @param array $dirs
-     * @return false 
+     * @return false|void
      */
-    public static function loadFile( $filename, Array $dirs = null ) {
-        $manager = Yasc_Autoloader_Manager::getInstance();       
+    public static function loadFile( $filename ) {
+        $manager = Yasc_Autoloader_Manager::getInstance();
 
-        if ( null === $dirs ) {
-            $dirs = $manager->getPaths( Yasc_Autoloader_Manager::PATH_TYPE_MODEL ) 
-                + $manager->getPaths( Yasc_Autoloader_Manager::PATH_TYPE_FUNCTION_HELPER )
-                + $manager->getPaths( Yasc_Autoloader_Manager::PATH_TYPE_VIEW_HELPER )
-                + $manager->getPaths( Yasc_Autoloader_Manager::PATH_TYPE_NS );            
-        }
-        
+        // search in namespaces.
+        $dirs = $manager->getPaths( Yasc_Autoloader_Manager::PATH_TYPE_MODEL )
+            + $manager->getPaths( Yasc_Autoloader_Manager::PATH_TYPE_FUNCTION_HELPER )
+            + $manager->getPaths( Yasc_Autoloader_Manager::PATH_TYPE_VIEW_HELPER )
+            + $manager->getPaths( Yasc_Autoloader_Manager::PATH_TYPE_NS );        
         if ( true === self::_require( $filename, $dirs ) ) {
             return;
         }
         
+        // search in the include path.
         $dirs = explode( PATH_SEPARATOR, get_include_path() );        
         if ( true === self::_require( $filename, $dirs ) ) {
             return;
@@ -106,7 +104,7 @@ class Yasc_Autoloader {
      *
      * @param string $filename
      * @param array $dirs
-     * @return boolean 
+     * @return bool 
      */
     protected static function _require( $filename, Array $dirs ) {
         $manager = Yasc_Autoloader_Manager::getInstance();        
@@ -121,8 +119,7 @@ class Yasc_Autoloader {
             }            
         }
         
-        $found = false;
-        
+        $found = false;        
         foreach ( $dirs as $ns => $path ) {
             $file = realpath( $path . '/' . $filename );
             if ( true === is_file( $file ) ) {

@@ -100,8 +100,8 @@ class Yasc_App {
      */
     protected function _initialize() {
         session_start();
-        $this->_autoloaderManager = Yasc_Autoloader_Manager::getInstance();
-        $this->_helperManager = new Yasc_App_HelperManager( $this->_autoloaderManager );
+        self::$_instance->_autoloaderManager = Yasc_Autoloader_Manager::getInstance();
+        self::$_instance->_helperManager = new Yasc_App_HelperManager();
     }
 
     protected function __construct() {}
@@ -109,10 +109,19 @@ class Yasc_App {
     
     /**
      *
+     * @return string
+     */
+    public function getScriptName() {
+        return ( null !== self::$_instance->_function ) ? 
+            self::$_instance->_function->getFileName() : APPLICATION_PATH;
+    }
+    
+    /**
+     *
      * @return Yasc_Autoloader_Manager
      */
     public function getAutoloaderManager() {
-        return $this->_autoloaderManager;
+        return self::$_instance->_autoloaderManager;
     }
     
     
@@ -121,7 +130,7 @@ class Yasc_App {
      * @return Yasc_App_HelperManager
      */
     public function getHelperManager() {
-        return $this->_helperManager;
+        return self::$_instance->_helperManager;
     }
     
     /**
@@ -129,7 +138,7 @@ class Yasc_App {
      * @return Yasc_App_Config
      */
     public function getConfig() {
-        return $this->_config;
+        return self::$_instance->_config;
     }
 
     /**
@@ -137,7 +146,7 @@ class Yasc_App {
      * @return array
      */
     public function getFunctions() {
-        return $this->_functions;
+        return self::$_instance->_functions;
     }
 
     /**
@@ -145,7 +154,7 @@ class Yasc_App {
      * @return Yasc_Function
      */
     public function getFunction() {
-        return $this->_function;
+        return self::$_instance->_function;
     }
 
     /**
@@ -153,7 +162,7 @@ class Yasc_App {
      * @return Yasc_View
      */
     public function getView() {
-        return $this->_view;
+        return self::$_instance->_view;
     }
 
     /**
@@ -161,7 +170,7 @@ class Yasc_App {
      * @return Yasc_Layout
      */
     public function getLayout() {
-        return $this->_layout;
+        return self::$_instance->_layout;
     }
 
     /**
@@ -170,10 +179,10 @@ class Yasc_App {
      * @return void
      */
     public function run() {
-        $this->_configure();
-        $this->_processFunctions();
-        $this->_processRoutes();
-        $this->_dispatch();
+        self::$_instance->_configure();
+        self::$_instance->_processFunctions();
+        self::$_instance->_processRoutes();
+        self::$_instance->_dispatch();
     }
 
     /**
@@ -182,17 +191,17 @@ class Yasc_App {
      * @return void
      */
     protected function _configure() {
-        $this->_config = new Yasc_App_Config( $this->_autoloaderManager );
+        self::$_instance->_config = new Yasc_App_Config();
         
         if ( false === function_exists( self::CONFIGURATION_FUNCTION_NAME ) ) {
             return;
         }
 
         $configure = new ReflectionFunction( self::CONFIGURATION_FUNCTION_NAME );        
-        $configure->invoke( $this->_config );
+        $configure->invoke();
 
-        if ( null !== $this->_config->getLayoutScript() ) {
-            $this->_layout = Yasc_Layout::getInstance()->setLayoutPath( $this->_config->getLayoutScript() );
+        if ( null !== self::$_instance->_config->getLayoutScript() ) {
+            self::$_instance->_layout = Yasc_Layout::getInstance()->setLayoutPath( self::$_instance->_config->getLayoutScript() );
         }
     }
 
@@ -209,11 +218,13 @@ class Yasc_App {
         }
 
         foreach ( $functions['user'] as $name ) {
-            if ( $name == self::CONFIGURATION_FUNCTION_NAME ) {
+            $func = new Yasc_Function( $name );
+            
+            if ( false === $func->getAnnotation()->hasAnnotation() ) {
                 continue;
             }
             
-            $this->_functions[] = new Yasc_Function( $name );
+            self::$_instance->_functions[] = $func;
         }
     }
 
@@ -224,7 +235,7 @@ class Yasc_App {
      */
     protected function _processRoutes() {
         $router = new Yasc_Router();
-        $this->_function = $router->route();
+        self::$_instance->_function = $router->route();
     }
 
     /**
@@ -233,18 +244,20 @@ class Yasc_App {
      * @return void
      */
     protected function _dispatch() {
-        if ( null === $this->_view ) {
-            $this->_view = new Yasc_View();
+        if ( null === self::$_instance->_view ) {
+            self::$_instance->_view = new Yasc_View();
         }        
         
-        $this->_execute();
+        self::$_instance->_execute();
 
-        $buffer = $this->_view->getBuffer();
+        $buffer = self::$_instance->_view->getBuffer();
 
-        if ( null !== $this->_layout && false === $this->_layout->isDisabled() ) {
-            $this->_layout->setContent( $buffer );
-            $this->_view->render( $this->_layout->getLayout() );            
-            $buffer = $this->_view->getBuffer();
+        if ( null !== self::$_instance->_layout 
+            && false === self::$_instance->_layout->isDisabled() 
+            ) {
+            self::$_instance->_layout->setContent( $buffer );
+            self::$_instance->_view->render( self::$_instance->_layout->getLayout() );            
+            $buffer = self::$_instance->_view->getBuffer();
         }
 
         if ( null !== $buffer ) {
@@ -259,7 +272,7 @@ class Yasc_App {
      * @return void
      */
     protected function _execute() {
-        $this->_function->invoke();
+        self::$_instance->_function->invoke();
     }
     
     /**
@@ -267,7 +280,7 @@ class Yasc_App {
      * @return Yasc_View
      */
     public static function view() {
-        return self::getInstance()->getView();
+        return self::$_instance->getView();
     }
     
     /**
@@ -278,10 +291,10 @@ class Yasc_App {
      */
     public static function params( $key = null, $default = null ) {
         if ( null === $key ) {
-            return self::getInstance()->getFunction()->getParams();
+            return self::$_instance->getFunction()->getParams();
         }
         
-        return self::getInstance()->getFunction()->getParam( $key, $default );
+        return self::$_instance->getFunction()->getParam( $key, $default );
     }
     
     /**
@@ -289,7 +302,7 @@ class Yasc_App {
      * @return Yasc_App_Config
      */
     public static function config() {
-        return self::getInstance()->getConfig();
+        return self::$_instance->getConfig();
     }
     
     /**
@@ -298,7 +311,8 @@ class Yasc_App {
      * @return Yasc_View_Helper_HelperAbstract 
      */
     public static function viewHelper( $name ) {
-        return self::getInstance()->getHelperManager()->getHelper( $name, Yasc_App_HelperManager::HELPER_TYPE_VIEW );
+        return self::$_instance->getHelperManager()->getHelper( $name, 
+            Yasc_App_HelperManager::HELPER_TYPE_VIEW );
     }
     
     /**
@@ -307,6 +321,7 @@ class Yasc_App {
      * @return mixed 
      */
     public static function functionHelper( $name ) {
-        return self::getInstance()->getHelperManager()->getHelper( $name, Yasc_App_HelperManager::HELPER_TYPE_FUNCTION );
+        return self::$_instance->getHelperManager()->getHelper( $name, 
+            Yasc_App_HelperManager::HELPER_TYPE_FUNCTION );
     }
 }
