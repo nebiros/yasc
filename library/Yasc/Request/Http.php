@@ -92,9 +92,10 @@ class Yasc_Request_Http {
     /**
      *
      * @param string $serverName 
+     * @param string $uri
      */
-    public function __construct( $serverName = null ) {
-        $this->processUrl( $serverName );
+    public function __construct( $serverName = null, $uri = null ) {
+        $this->processUrl( $serverName, $uri );
     }
 
     /**
