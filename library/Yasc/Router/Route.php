@@ -123,28 +123,39 @@ class Yasc_Router_Route {
                 throw new Yasc_Router_Exception( 'Function is not a instance of Yasc_Function' );
             }
 
-            if ( strtolower( $_SERVER['REQUEST_METHOD'] ) == Yasc_Router::METHOD_POST ) {
-                if ( false === array_key_exists( "_method", $_POST ) ) {
+            if ( strtolower( $_SERVER['REQUEST_METHOD'] ) != $function->getMethod() ) {
+                if ( strtolower( $_SERVER['REQUEST_METHOD'] ) == Yasc_Router::METHOD_POST 
+                    && true === array_key_exists( '_method', $_POST ) ) {
+                    if ( strtolower( $_POST['_method'] ) == $function->getMethod() ) {
+                        if ( true === $this->_lookup( $function ) ) {
+                            $this->_requestedFunction = $function;
+                            break;
+                        }
+                    }
+
                     continue;
                 }
-                
-                if ( strtolower( $_POST["_method"] ) != $function->getMethod() ) {
+
+                continue;
+            } else {
+                if ( strtolower( $_SERVER['REQUEST_METHOD'] ) == Yasc_Router::METHOD_POST 
+                    && true === array_key_exists( '_method', $_POST ) ) {
+                    if ( strtolower( $_POST['_method'] ) == $function->getMethod() ) {
+                        if ( true === $this->_lookup( $function ) ) {
+                            $this->_requestedFunction = $function;
+                            break;
+                        }
+                    }
+
                     continue;
-                } else {
+                } else {                
                     if ( true === $this->_lookup( $function ) ) {
                         $this->_requestedFunction = $function;
                         break;
-                    }                    
+                    }
                 }
-            }
-            
-            if ( strtolower( $_SERVER['REQUEST_METHOD'] ) != $function->getMethod() ) {
+
                 continue;
-            }
-            
-            if ( true === $this->_lookup( $function ) ) {
-                $this->_requestedFunction = $function;
-                break;
             }
         }
 
