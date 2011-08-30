@@ -160,7 +160,7 @@ class Yasc_Router_Route {
         }
 
         if ( null === $this->_requestedFunction ) {
-            throw new Yasc_Router_Exception( 'Requested function not found' );
+            throw new Yasc_Router_Exception( "Requested function not found, request URI: '{$_SERVER["REQUEST_URI"]}'" );
         }
         
         $this->_requestedFunction->setParams( ( array ) $this->_setupParams() );

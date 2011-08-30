@@ -77,7 +77,7 @@ class Yasc_Router {
         $requestedFunction = $route->match()->getRequestedFunction();
 
         if ( null === $requestedFunction ) {
-            throw new Yasc_Router_Exception( 'Requested function not found' );
+            throw new Yasc_Router_Exception( "Requested function not found, request URI: '{$_SERVER["REQUEST_URI"]}'" );
         }
 
         return $requestedFunction;
