@@ -34,12 +34,19 @@ class Yasc_View_Helper_Flash extends Yasc_View_Helper_HelperAbstract {
 
     /**
      *
-     * @param array $options
+     * @return Yasc_View_Helper_Flash
+     */
+    public function flash() {
+        return $this;
+    }
+
+    /**
+     *
      * @return Yasc_Function_Helper_Flash
      */
-    public function flash( Array $options = null ) {
-        /* @var $flash Yasc_Function_Helper_Flash */
-        $flash = Yasc_App::functionHelper( "flash" );
-        return $flash;
+    public function messages() {
+        /* @var $f Yasc_Function_Helper_Flash */
+        $f = Yasc_App::functionHelper( "flash" );
+        return $f;
     }
 }

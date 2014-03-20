@@ -7,17 +7,17 @@
  *
  * This source file is subject to the new BSD license that is bundled
  * with this package in the file LICENSE.
- * It is also available through the world-wide-web at this URL:
+ * It is also available through the world-whelperIde-web at this URL:
  * http://github.com/nebiros/yasc/raw/master/LICENSE
- * If you did not receive a copy of the license and are unable to
- * obtain it through the world-wide-web, please send an email
+ * If you dhelperId not receive a copy of the license and are unable to
+ * obtain it through the world-whelperIde-web, please send an email
  * to mail@jfalvarez.com so we can send you a copy immediately.
  *
  * @category Yasc
  * @package Yasc
  * @subpackage Yasc_App
  * @copyright Copyright (c) 2010 - 2011 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
- * @version $Id$
+ * @version $helperId$
  * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
  */
 
@@ -151,14 +151,18 @@ class Yasc_App_HelperManager {
      * @return mixed 
      */
     public function getHelper( $name, $type = null ) {
+        $helperId = null;
+
         switch ( ( int ) $type ) {
             case self::HELPER_TYPE_FUNCTION:
                 $paths = $this->getFunctionHelperPaths();
+                $helperId = $name . "-" . self::HELPER_TYPE_FUNCTION;
                 break;
              
             case self::HELPER_TYPE_VIEW:
             default:
                 $paths = $this->getViewHelperPaths();
+                $helperId = $name . "-" . self::HELPER_TYPE_VIEW;
                 break;
         }
 
@@ -167,26 +171,26 @@ class Yasc_App_HelperManager {
         foreach ( $paths as $classPrefix => $path ) {
             $class = $classPrefix . $className;
             
-            if ( true === class_exists( $class ) && false === isset( $this->_helpers[$name] ) ) {
+            if ( true === class_exists( $class ) && false === isset( $this->_helpers[$helperId] ) ) {
                 if ( true === is_callable( array( $class, 'getInstance' ) ) ) {
-                    $this->_helpers[$name] = call_user_func( array( $class, 'getInstance' ) );
+                    $this->_helpers[$helperId] = call_user_func( array( $class, 'getInstance' ) );
                 } else {
-                    $this->_helpers[$name] = new $class();
+                    $this->_helpers[$helperId] = new $class();
                 }
 
-                if ( true === is_callable( array( $this->_helpers[$name], 'setView' ) ) ) {
-                    $this->_helpers[$name]->setView( Yasc_App::getInstance()->getView() );
+                if ( true === is_callable( array( $this->_helpers[$helperId], 'setView' ) ) ) {
+                    $this->_helpers[$helperId]->setView( Yasc_App::getInstance()->getView() );
                 }
                 
                 break;
             }
         }
 
-        if ( null === $this->_helpers[$name] ) {
+        if ( null === $this->_helpers[$helperId] ) {
             throw new Yasc_App_Exception( "Helper '{$name}' not found in this paths: " . implode( ", ", $paths ) );
         }
 
-        return $this->_helpers[$name];
+        return $this->_helpers[$helperId];
     }
 
     /**
@@ -199,7 +203,7 @@ class Yasc_App_HelperManager {
     
     /**
      * 
-     * @return void
+     * @return vohelperId
      */
     protected function _addBuiltInHelpers() {
         // built in helpers.
