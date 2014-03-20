@@ -71,7 +71,6 @@ class Yasc_Function_Helper_Flash {
             $_SESSION[__CLASS__][self::TYPE_MESSAGE] = array();
             $_SESSION[__CLASS__][self::TYPE_WARNING] = array();
             $_SESSION[__CLASS__][self::TYPE_ERROR] = array();
-            $_SESSION[__CLASS__];
         }
     }
 
