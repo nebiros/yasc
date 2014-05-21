@@ -16,7 +16,7 @@
  * @category Yasc
  * @package Yasc
  * @subpackage Yasc_Request
- * @copyright Copyright (c) 2010 - 2011 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
+ * @copyright Copyright (c) 2010 - 2014 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
  * @version $Id$
  * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
  */
@@ -25,7 +25,7 @@
  *
  * @package Yasc
  * @subpackage Yasc_Request
- * @copyright Copyright (c) 2010 - 2011 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
+ * @copyright Copyright (c) 2010 - 2014 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
  * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
  * @author nebiros
  */
@@ -35,7 +35,7 @@ class Yasc_Request_Http {
      *
      * @var string
      */
-    protected $_scheme = 'http';
+    protected $_scheme = "http";
 
     /**
      * Default port.
@@ -54,13 +54,13 @@ class Yasc_Request_Http {
      *
      * @var string
      */
-    protected $_urlVariable = ':';
+    protected $_urlVariable = ":";
     
     /**
      *
      * @var string
      */
-    protected $_urlDelimiter = '/';
+    protected $_urlDelimiter = "/";
 
     /**
      * Requested url, normalized.
@@ -94,8 +94,8 @@ class Yasc_Request_Http {
      * @param string $serverName 
      * @param string $uri
      */
-    public function __construct( $serverName = null, $uri = null ) {
-        $this->processUrl( $serverName, $uri );
+    public function __construct($serverName = null, $uri = null) {
+        $this->processUrl($serverName, $uri);
     }
 
     /**
@@ -111,8 +111,8 @@ class Yasc_Request_Http {
      * @param int $port
      * @return Yasc_Request_Http 
      */
-    public function setDefaultPort( $port ) {
-        $this->_defaultPort = ( int ) $port;
+    public function setDefaultPort($port) {
+        $this->_defaultPort = (int) $port;
         return $this;
     }
 
@@ -129,8 +129,8 @@ class Yasc_Request_Http {
      * @param int $port
      * @return Yasc_Request_Http 
      */
-    public function setSslPort( $port ) {
-        $this->_sslPort = ( int ) $port;
+    public function setSslPort($port) {
+        $this->_sslPort = (int) $port;
         return $this;
     }    
     
@@ -197,60 +197,60 @@ class Yasc_Request_Http {
      * @param string $uri
      * @return Yasc_Request_Http
      */
-    public function processUrl( $serverName = null, $uri = null ) {
-        if ( null === $serverName || $serverName == $this->_urlDelimiter ) {
-            $serverName = $_SERVER['SERVER_NAME'];
+    public function processUrl($serverName = null, $uri = null) {
+        if (null === $serverName || $serverName == $this->_urlDelimiter) {
+            $serverName = $_SERVER["SERVER_NAME"];
         }
         
-        if ( false !== ( $port = strstr( $serverName, $this->_urlVariable ) ) ) {
-            $serverName = str_replace( $port, '', $serverName );
-            $port = str_replace( $this->_urlVariable, '', $port );            
+        if (false !== ($port = strstr($serverName, $this->_urlVariable))) {
+            $serverName = str_replace($port, "", $serverName);
+            $port = str_replace($this->_urlVariable, "", $port);            
         } else {
-            $port = $_SERVER['SERVER_PORT'];
+            $port = $_SERVER["SERVER_PORT"];
         }
 
         $url = $this->_scheme;
 
-        if ( gethostbyname( $serverName ) != $_SERVER['SERVER_ADDR'] ) {
-            if ( $port == $this->_sslPort ) {
-                $url .= 's';
+        if (gethostbyname($serverName) != $_SERVER["SERVER_ADDR"]) {
+            if ($port == $this->_sslPort) {
+                $url .= "s";
             }
         } else {
-            switch ( true ) {
-                case ( true === isset( $_SERVER['HTTPS'] ) && ( $_SERVER['HTTPS'] == 'on' || $_SERVER['HTTPS'] === true ) ):
-                case ( true === isset( $_SERVER['HTTP_SCHEME'] ) && ( $_SERVER['HTTP_SCHEME'] == 'https' ) ):
-                case ( true === isset( $_SERVER['SERVER_PORT'] ) && ( $_SERVER['SERVER_PORT'] == 443 ) ):
-                    $url .= 's';
+            switch (true) {
+                case (true === isset($_SERVER["HTTPS"]) && ($_SERVER["HTTPS"] == "on" || $_SERVER["HTTPS"] === true)):
+                case (true === isset($_SERVER["HTTP_SCHEME"]) && ($_SERVER["HTTP_SCHEME"] == "https")):
+                case (true === isset($_SERVER["SERVER_PORT"]) && ($_SERVER["SERVER_PORT"] == 443)):
+                    $url .= "s";
                     break;
             }
         }
 
-        $url .= '://';
+        $url .= "://";
 
-        if ( ( $port != $this->_defaultPort )
-            && $port != $this->_sslPort ) {
-            $url .= $serverName . ':' . $port;
+        if (($port != $this->_defaultPort)
+            && $port != $this->_sslPort) {
+            $url .= $serverName . ":" . $port;
         } else {
             $url .= $serverName;
         }
         
         $this->_serverUrl = $url;
         
-        if ( false === is_string( $uri ) ) {
-            $uri = $_SERVER['REQUEST_URI'];
+        if (false === is_string($uri)) {
+            $uri = $_SERVER["REQUEST_URI"];
         }
         
-        if ( $uri[0] != $this->_urlDelimiter ) {
+        if ($uri[0] != $this->_urlDelimiter) {
             $uri = $this->_urlDelimiter . $uri;
         }        
         
         $url .= $uri;
 
-        $this->_url = trim( $url, $this->_urlDelimiter );
-        $this->_urlComponents = parse_url( $this->_url );
+        $this->_url = trim($url, $this->_urlDelimiter);
+        $this->_urlComponents = parse_url($this->_url);
 
-        $urlPattern = str_replace( $_SERVER['SCRIPT_NAME'], '', rtrim( $this->_urlComponents['path'], '/' ) );
-        $this->_urlPattern = ( $urlPattern ) ? $urlPattern : $this->_urlDelimiter;
+        $urlPattern = str_replace($_SERVER["SCRIPT_NAME"], "", rtrim($this->_urlComponents["path"], "/"));
+        $this->_urlPattern = ($urlPattern) ? $urlPattern : $this->_urlDelimiter;
 
         return $this;
     }

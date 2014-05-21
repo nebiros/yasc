@@ -1,31 +1,31 @@
 <?php
 
 // Include Yasc.
-require_once '../library/Yasc.php';
+require_once "../library/Yasc.php";
 
 /**
- * @GET( '/' )
+ * @GET("/")
  */
 function index() {
-    echo 'Hello world!';
+    echo "Hello world!";
 }
 
 /**
- * @POST( '/' )
+ * @POST("/")
  */
 function create() {
     // save something.
 }
 
 /**
- * @PUT( '/' )
+ * @PUT("/")
  */
 function update() {
     // update something.
 }
 
 /**
- * @DELETE( '/' )
+ * @DELETE("/")
  */
 function destroy() {
     // delete something.

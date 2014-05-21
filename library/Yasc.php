@@ -15,35 +15,35 @@
  *
  * @category Yasc
  * @package Yasc
- * @copyright Copyright (c) 2010 - 2011 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
+ * @copyright Copyright (c) 2010 - 2014 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
  * @version $Id$
  * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
  */
 
-defined( 'APPLICATION_PATH' )
-    || define( 'APPLICATION_PATH', realpath( getcwd() ) );
+defined("APPLICATION_PATH")
+    || define("APPLICATION_PATH", realpath(getcwd()));
 
-defined( 'APPLICATION_SCRIPT' )
-    || define( 'APPLICATION_SCRIPT', $_SERVER['SCRIPT_NAME'] );
+defined("APPLICATION_SCRIPT")
+    || define("APPLICATION_SCRIPT", $_SERVER["SCRIPT_NAME"]);
 
-set_include_path( implode( PATH_SEPARATOR, array(
-    realpath( dirname( __FILE__ ) ),
+set_include_path(implode(PATH_SEPARATOR, array(
+    realpath(dirname(__FILE__)),
     get_include_path()
-) ) );
+)));
 
-require_once 'Yasc/Autoloader.php';
+require_once "Yasc/Autoloader.php";
 Yasc_Autoloader::register();
 
 /**
  * Yet Another Sinatra Clone.
  *
  * @package Yasc
- * @copyright Copyright (c) 2010 - 2011 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
+ * @copyright Copyright (c) 2010 - 2014 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
  * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
  * @author nebiros
  */
 class Yasc {
-    const VERSION = '0.1.16';
+    const VERSION = "0.1.17";
 
     /**
      * App.
@@ -59,7 +59,7 @@ class Yasc {
      * @return Yasc_App
      */
     public function getApp() {
-        if ( null === $this->_app ) {
+        if (null === $this->_app) {
             $this->_app = Yasc_App::getInstance();
         }
 
@@ -78,4 +78,4 @@ class Yasc {
 
 $yasc = new Yasc();
 $yasc->run();
-unset( $yasc );
+unset($yasc);
