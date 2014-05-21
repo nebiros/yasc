@@ -15,7 +15,7 @@
  *
  * @category Yasc
  * @package Yasc
- * @copyright Copyright (c) 2010 - 2011 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
+ * @copyright Copyright (c) 2010 - 2014 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
  * @version $Id$
  * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
  */
@@ -24,15 +24,15 @@
  * Class to handle routes.
  *
  * @package Yasc
- * @copyright Copyright (c) 2010 - 2011 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
+ * @copyright Copyright (c) 2010 - 2014 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
  * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
  * @author nebiros
  */
 class Yasc_Router {
-    const METHOD_GET = 'get';
-    const METHOD_POST = 'post';
-    const METHOD_PUT = 'put';
-    const METHOD_DELETE = 'delete';
+    const METHOD_GET = "get";
+    const METHOD_POST = "post";
+    const METHOD_PUT = "put";
+    const METHOD_DELETE = "delete";
 
     /**
      * App class.
@@ -54,7 +54,7 @@ class Yasc_Router {
      * @param Yasc_App $app
      * @return Yasc_Router
      */
-    public function setApp( Yasc_App $app ) {
+    public function setApp(Yasc_App $app) {
         $this->_app = $app;
         return $this;
     }
@@ -73,11 +73,11 @@ class Yasc_Router {
      * @return Yasc_Function
      */
     public function route() {
-        $route = new Yasc_Router_Route( $this->getApp()->getFunctions() );
+        $route = new Yasc_Router_Route($this->getApp()->getFunctions());
         $requestedFunction = $route->match()->getRequestedFunction();
 
-        if ( null === $requestedFunction ) {
-            throw new Yasc_Router_Exception( "Requested function not found, request URI: '{$_SERVER["REQUEST_URI"]}'" );
+        if (null === $requestedFunction) {
+            throw new Yasc_Router_Exception("Requested function not found, request URI: '{$_SERVER["REQUEST_URI"]}'");
         }
 
         return $requestedFunction;

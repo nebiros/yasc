@@ -16,7 +16,7 @@
  * @category Yasc
  * @package Yasc
  * @subpackage Yasc_View
- * @copyright Copyright (c) 2010 - 2011 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
+ * @copyright Copyright (c) 2010 - 2014 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
  * @version $Id$
  * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
  */
@@ -36,7 +36,7 @@
  *
  * @package Yasc
  * @subpackage Yasc_View
- * @copyright Copyright (c) 2010 - 2011 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
+ * @copyright Copyright (c) 2010 - 2014 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
  * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
  * @author nebiros
  */
@@ -65,17 +65,17 @@ class Yasc_View_Stream {
     /**
      * Opens the script file and converts markup.
      */
-    public function stream_open( $path, $mode, $options, &$opened_path ) {
+    public function stream_open($path, $mode, $options, &$opened_path) {
         // get the view script source
-        $path = str_replace( 'view://', '', $path );
-        $this->_data = file_get_contents( $path );
+        $path = str_replace("view://", "", $path);
+        $this->_data = file_get_contents($path);
 
         /**
          * If reading the file failed, update our local stat store
          * to reflect the real stat of the file, then return on failure
          */
-        if ( false === $this->_data ) {
-            $this->_stat = stat( $path );
+        if (false === $this->_data) {
+            $this->_stat = stat($path);
             return false;
         }
 
@@ -83,15 +83,15 @@ class Yasc_View_Stream {
          * Convert <?= ?> to long-form <?php echo ?> and <? ?> to <?php ?>
          *
          */
-        $this->_data = preg_replace( '/\<\?\=/', '<?php echo ', $this->_data );
-        $this->_data = preg_replace( '/<\?(?!xml|php)/s', '<?php ', $this->_data );
+        $this->_data = preg_replace("/\<\?\=/", "<?php echo ", $this->_data);
+        $this->_data = preg_replace("/<\?(?!xml|php)/s", "<?php ", $this->_data);
 
         /**
          * file_get_contents() won't update PHP's stat cache, so we grab a stat
          * of the file to prevent additional reads should the script be
          * requested again, which will make include() happy.
          */
-        $this->_stat = stat( $path );
+        $this->_stat = stat($path);
 
         return true;
     }
@@ -99,9 +99,9 @@ class Yasc_View_Stream {
     /**
      * Reads from the stream.
      */
-    public function stream_read( $count ) {
-        $ret = substr( $this->_data, $this->_pos, $count );
-        $this->_pos += strlen( $ret );
+    public function stream_read($count) {
+        $ret = substr($this->_data, $this->_pos, $count);
+        $this->_pos += strlen($ret);
         return $ret;
     }
 
@@ -116,7 +116,7 @@ class Yasc_View_Stream {
      * Tells if we are at the end of the stream.
      */
     public function stream_eof() {
-        return $this->_pos >= strlen( $this->_data );
+        return $this->_pos >= strlen($this->_data);
     }
 
     /**
@@ -129,10 +129,10 @@ class Yasc_View_Stream {
     /**
      * Seek to a specific point in the stream.
      */
-    public function stream_seek( $offset, $whence ) {
-        switch ( $whence ) {
+    public function stream_seek($offset, $whence) {
+        switch ($whence) {
             case SEEK_SET:
-                if ( $offset < strlen( $this->_data ) && $offset >= 0 ) {
+                if ($offset < strlen($this->_data) && $offset >= 0) {
                     $this->_pos = $offset;
                     return true;
                 } else {
@@ -142,7 +142,7 @@ class Yasc_View_Stream {
                 break;
 
             case SEEK_CUR:
-                if ( $offset >= 0 ) {
+                if ($offset >= 0) {
                     $this->_pos += $offset;
                     return true;
                 } else {
@@ -152,8 +152,8 @@ class Yasc_View_Stream {
                 break;
 
             case SEEK_END:
-                if ( strlen( $this->_data ) + $offset >= 0 ) {
-                    $this->_pos = strlen( $this->_data ) + $offset;
+                if (strlen($this->_data) + $offset >= 0) {
+                    $this->_pos = strlen($this->_data) + $offset;
                     return true;
                 } else {
                     return false;

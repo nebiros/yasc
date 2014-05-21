@@ -15,7 +15,7 @@
  *
  * @category Yasc
  * @package Yasc
- * @copyright Copyright (c) 2010 - 2011 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
+ * @copyright Copyright (c) 2010 - 2014 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
  * @version $Id$
  * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
  */
@@ -24,7 +24,7 @@
  * View.
  *
  * @package Yasc
- * @copyright Copyright (c) 2010 - 2011 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
+ * @copyright Copyright (c) 2010 - 2014 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
  * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
  * @author nebiros
  */
@@ -55,9 +55,9 @@ class Yasc_View {
     public function __construct() {
         $this->_useViewStream = Yasc_App::getInstance()->getConfig()->useViewStream();
 
-        if ( true === $this->_useViewStream ) {
-            if ( false === in_array( 'view', stream_get_wrappers() ) ) {
-                stream_wrapper_register( 'view', 'Yasc_View_Stream' );
+        if (true === $this->_useViewStream) {
+            if (false === in_array("view", stream_get_wrappers())) {
+                stream_wrapper_register("view", "Yasc_View_Stream");
             }
         }
     }
@@ -67,13 +67,13 @@ class Yasc_View {
      * @param mixed $name
      * @param mixed $value
      */
-    public function __set( $name, $value ) {
-        if ( '_' != substr( $name, 0, 1 )  ) {
+    public function __set($name, $value) {
+        if ("_" != substr($name, 0, 1) ) {
             $this->$name = $value;
             return;
         }
 
-        throw new Yasc_View_Exception( 'Private or protected attributes are not allowed' );
+        throw new Yasc_View_Exception("Private or protected attributes are not allowed");
     }
 
     /**
@@ -81,9 +81,9 @@ class Yasc_View {
      * @param mixed $name
      * @return bool
      */
-    public function __isset( $name ) {
-        if ( '_' != substr( $name, 0, 1 )  ) {
-            return isset( $this->$name );
+    public function __isset($name) {
+        if ("_" != substr($name, 0, 1) ) {
+            return isset($this->$name);
         }
 
         return false;
@@ -94,12 +94,12 @@ class Yasc_View {
      * @param mixed $name
      * @return mixed|null
      */
-    public function __get( $name ) {
-        if ( true === isset( $this->$name ) ) {
+    public function __get($name) {
+        if (true === isset($this->$name)) {
             return $this->$name;
         }
 
-        trigger_error( "Undefined property '{$name}'", E_USER_NOTICE );        
+        trigger_error("Undefined property '{$name}'", E_USER_NOTICE);        
         return null;
     }
 
@@ -108,9 +108,9 @@ class Yasc_View {
      * @param mixed $name
      * @return void
      */
-    public function __unset( $name ) {
-        if ( '_' != substr( $name, 0, 1 ) && true === isset( $this->$name ) ) {
-            unset( $this->$name );
+    public function __unset($name) {
+        if ("_" != substr($name, 0, 1) && true === isset($this->$name)) {
+            unset($this->$name);
         }
     }
 
@@ -119,14 +119,14 @@ class Yasc_View {
      * @param string $name
      * @param array $arguments
      */
-    public function __call( $name, $arguments ) {
-        $helper = Yasc_App::getInstance()->getHelperManager()->getHelper( $name );
+    public function __call($name, $arguments) {
+        $helper = Yasc_App::getInstance()->getHelperManager()->getHelper($name);
         
-        if ( false === is_callable( array( $helper, $name ) ) ) {
-            throw new Yasc_View_Exception( "Helper '{$name}' isn't callable" );
+        if (false === is_callable(array($helper, $name))) {
+            throw new Yasc_View_Exception("Helper '{$name}' isn't callable");
         }
         
-        return call_user_func_array( array( $helper, $name ), $arguments );
+        return call_user_func_array(array($helper, $name), $arguments);
     }
 
     /**
@@ -142,20 +142,20 @@ class Yasc_View {
      * @param string $filename
      * @return Yasc_View
      */
-    public function setViewScript( $filename ) {
+    public function setViewScript($filename) {
         $this->_viewScript = null;
         
         $folders = Yasc_App::getInstance()->getConfig()->getViewsPaths();
 
-        foreach ( $folders as $path ) {
-            if ( true === is_file( realpath( $path . '/' . $filename . '.phtml' ) ) ) {
-                $this->_viewScript = realpath( $path . '/' . $filename . '.phtml' );
+        foreach ($folders as $path) {
+            if (true === is_file(realpath($path . "/" . $filename . ".phtml"))) {
+                $this->_viewScript = realpath($path . "/" . $filename . ".phtml");
                 break;
             }
         }
 
-        if ( null === $this->_viewScript ) {
-            throw new Yasc_View_Exception( "View file '{$filename}' not found in this paths: " . implode( ', ', $folders ) );
+        if (null === $this->_viewScript) {
+            throw new Yasc_View_Exception("View file '{$filename}' not found in this paths: " . implode(", ", $folders));
         }
 
         return $this;
@@ -174,7 +174,7 @@ class Yasc_View {
      * @param string $buffer
      * @return Yasc_View
      */
-    public function setBuffer( $buffer ) {
+    public function setBuffer($buffer) {
         $this->_buffer = $buffer;
         return $this;
     }
@@ -185,14 +185,14 @@ class Yasc_View {
      * @param string $filename
      * @return string
      */
-    protected function _processViewScript( $filename ) {
-        $this->setViewScript( $filename );
-        unset( $filename );
+    protected function _processViewScript($filename) {
+        $this->setViewScript($filename);
+        unset($filename);
         
         ob_start();
         
-        if ( true === $this->_useViewStream ) {
-            include 'view://' . $this->_viewScript;            
+        if (true === $this->_useViewStream) {
+            include "view://" . $this->_viewScript;            
         } else {
             include $this->_viewScript;
         }
@@ -208,8 +208,8 @@ class Yasc_View {
      * @param string $filename
      * @return string
      */
-    public function render( $filename ) {
-        return $this->_processViewScript( $filename );
+    public function render($filename) {
+        return $this->_processViewScript($filename);
     }
 
     /**

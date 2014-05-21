@@ -15,7 +15,7 @@
  *
  * @category Yasc
  * @package Yasc
- * @copyright Copyright (c) 2010 - 2011 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
+ * @copyright Copyright (c) 2010 - 2014 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
  * @version $Id$
  * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
  */
@@ -23,7 +23,7 @@
 /**
  *
  * @package Yasc
- * @copyright Copyright (c) 2010 - 2011 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
+ * @copyright Copyright (c) 2010 - 2014 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
  * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
  * @author nebiros
  */
@@ -39,8 +39,8 @@ class Yasc_Util {
         $array = array();
         $n = func_num_args();
         
-        while ( $n-- > 0 ) { 
-            $array += func_get_arg( $n );
+        while ($n-- > 0) { 
+            $array += func_get_arg($n);
         }
         
         return $array; 
@@ -54,11 +54,11 @@ class Yasc_Util {
      * @param bool $strict
      * @return bool 
      */
-    public static function inArrayRecursive( $needle, $haystack, $strict = false ) {
-        $it = new RecursiveIteratorIterator( new RecursiveArrayIterator( $haystack ) );
+    public static function inArrayRecursive($needle, $haystack, $strict = false) {
+        $it = new RecursiveIteratorIterator(new RecursiveArrayIterator($haystack));
 
-        foreach( $it as $element ) {
-            if ( ( false === $strict && $element == $needle ) || ( true === $strict && $element === $needle ) ) {
+        foreach($it as $element) {
+            if ((false === $strict && $element == $needle) || (true === $strict && $element === $needle)) {
                 return true;
             }
         }

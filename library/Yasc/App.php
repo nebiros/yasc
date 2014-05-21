@@ -15,7 +15,7 @@
  *
  * @category Yasc
  * @package Yasc
- * @copyright Copyright (c) 2010 - 2011 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
+ * @copyright Copyright (c) 2010 - 2014 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
  * @version $Id$
  * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
  */
@@ -24,12 +24,14 @@
  * App.
  *
  * @package Yasc
- * @copyright Copyright (c) 2010 - 2011 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
+ * @copyright Copyright (c) 2010 - 2014 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
  * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
  * @author nebiros
  */
 class Yasc_App {
-    const CONFIGURATION_FUNCTION_NAME = 'configure';
+    const CONFIGURATION_FUNCTION_NAME = "configure";
+    const PRE_DISPATCH_FUNCTION_NAME = "pre_dispatch";
+    const POST_DISPATCH_FUNCTION_NAME = "post_dispatch";
     
     /**
      *
@@ -86,7 +88,7 @@ class Yasc_App {
      * @return Yasc_App
      */
     public static function getInstance() {
-        if ( null === self::$_instance ) {
+        if (null === self::$_instance) {
             self::$_instance = new self();
             self::$_instance->_initialize();
         }
@@ -112,7 +114,7 @@ class Yasc_App {
      * @return string
      */
     public function getScriptName() {
-        return ( null !== self::$_instance->_function ) ? 
+        return (null !== self::$_instance->_function) ? 
             self::$_instance->_function->getFileName() : APPLICATION_PATH;
     }
     
@@ -182,27 +184,47 @@ class Yasc_App {
         self::$_instance->_configure();
         self::$_instance->_processFunctions();
         self::$_instance->_processRoutes();
+        self::$_instance->_preDispatch();
         self::$_instance->_dispatch();
+        self::$_instance->_postDispatch();
     }
 
     /**
      * Configure yasc.
      *
-     * @return void
+     * @return bool
      */
     protected function _configure() {
         self::$_instance->_config = new Yasc_App_Config();
         
-        if ( false === function_exists( self::CONFIGURATION_FUNCTION_NAME ) ) {
-            return;
+        if (false === function_exists(self::CONFIGURATION_FUNCTION_NAME)) {
+            return false;
         }
 
-        $configure = new ReflectionFunction( self::CONFIGURATION_FUNCTION_NAME );        
+        $configure = new ReflectionFunction(self::CONFIGURATION_FUNCTION_NAME);
         $configure->invoke();
 
-        if ( null !== self::$_instance->_config->getLayoutScript() ) {
-            self::$_instance->_layout = Yasc_Layout::getInstance()->setLayoutPath( self::$_instance->_config->getLayoutScript() );
+        if (null !== self::$_instance->_config->getLayoutScript()) {
+            self::$_instance->_layout = Yasc_Layout::getInstance()->setLayoutPath(self::$_instance->_config->getLayoutScript());
         }
+    }
+
+    protected function _preDispatch() {
+        if (false === function_exists(self::PRE_DISPATCH_FUNCTION_NAME)) {
+            return false;
+        }
+
+        $preDispatch = new ReflectionFunction(self::PRE_DISPATCH_FUNCTION_NAME);
+        $preDispatch->invoke();
+    }
+
+    protected function _postDispatch() {
+        if (false === function_exists(self::POST_DISPATCH_FUNCTION_NAME)) {
+            return false;
+        }
+
+        $postDispatch = new ReflectionFunction(self::POST_DISPATCH_FUNCTION_NAME);
+        $postDispatch->invoke();
     }
 
     /**
@@ -213,14 +235,14 @@ class Yasc_App {
     protected function _processFunctions() {
         $functions = get_defined_functions();
 
-        if ( true === empty( $functions['user'] ) ) {
-            throw new Yasc_Exception( 'No user defined functions' );
+        if (true === empty($functions["user"])) {
+            throw new Yasc_Exception("No user defined functions");
         }
 
-        foreach ( $functions['user'] as $name ) {
-            $func = new Yasc_Function( $name );
+        foreach ($functions["user"] as $name) {
+            $func = new Yasc_Function($name);
             
-            if ( false === $func->getAnnotation()->hasAnnotation() ) {
+            if (false === $func->getAnnotation()->hasAnnotation()) {
                 continue;
             }
             
@@ -244,7 +266,7 @@ class Yasc_App {
      * @return void
      */
     protected function _dispatch() {
-        if ( null === self::$_instance->_view ) {
+        if (null === self::$_instance->_view) {
             self::$_instance->_view = new Yasc_View();
         }        
         
@@ -252,15 +274,15 @@ class Yasc_App {
 
         $buffer = self::$_instance->_view->getBuffer();
 
-        if ( null !== self::$_instance->_layout 
+        if (null !== self::$_instance->_layout 
             && false === self::$_instance->_layout->isDisabled() 
-            ) {
-            self::$_instance->_layout->setContent( $buffer );
-            self::$_instance->_view->render( self::$_instance->_layout->getLayout() );            
+           ) {
+            self::$_instance->_layout->setContent($buffer);
+            self::$_instance->_view->render(self::$_instance->_layout->getLayout());            
             $buffer = self::$_instance->_view->getBuffer();
         }
 
-        if ( null !== $buffer ) {
+        if (null !== $buffer) {
             echo $buffer;
             exit();
         }        
@@ -289,12 +311,12 @@ class Yasc_App {
      * @param mixed $default
      * @return mixed 
      */
-    public static function params( $key = null, $default = null ) {
-        if ( null === $key ) {
+    public static function params($key = null, $default = null) {
+        if (null === $key) {
             return self::$_instance->getFunction()->getParams();
         }
         
-        return self::$_instance->getFunction()->getParam( $key, $default );
+        return self::$_instance->getFunction()->getParam($key, $default);
     }
     
     /**
@@ -310,9 +332,9 @@ class Yasc_App {
      * @param string $name
      * @return Yasc_View_Helper_HelperAbstract 
      */
-    public static function viewHelper( $name ) {
-        return self::$_instance->getHelperManager()->getHelper( $name, 
-            Yasc_App_HelperManager::HELPER_TYPE_VIEW );
+    public static function viewHelper($name) {
+        return self::$_instance->getHelperManager()->getHelper($name, 
+            Yasc_App_HelperManager::HELPER_TYPE_VIEW);
     }
     
     /**
@@ -320,8 +342,8 @@ class Yasc_App {
      * @param string $name
      * @return mixed 
      */
-    public static function functionHelper( $name ) {
-        return self::$_instance->getHelperManager()->getHelper( $name, 
-            Yasc_App_HelperManager::HELPER_TYPE_FUNCTION );
+    public static function functionHelper($name) {
+        return self::$_instance->getHelperManager()->getHelper($name, 
+            Yasc_App_HelperManager::HELPER_TYPE_FUNCTION);
     }
 }

@@ -15,7 +15,7 @@
  *
  * @category Yasc
  * @package Yasc
- * @copyright Copyright (c) 2010 - 2011 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
+ * @copyright Copyright (c) 2010 - 2014 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
  * @version $Id$
  * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
  */
@@ -24,7 +24,7 @@
  * Layout.
  *
  * @package Yasc
- * @copyright Copyright (c) 2010 - 2011 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
+ * @copyright Copyright (c) 2010 - 2014 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
  * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
  * @author nebiros
  */
@@ -67,7 +67,7 @@ class Yasc_Layout {
      * @return Yasc_Layout
      */
     public static function getInstance() {
-        if ( null === self::$_instance ) {
+        if (null === self::$_instance) {
             self::$_instance = new self();
         }
 
@@ -87,7 +87,7 @@ class Yasc_Layout {
      * @param string $layout
      * @return Yasc_Layout
      */
-    public function setLayout( $layout ) {
+    public function setLayout($layout) {
         self::$_instance->_layout = $layout;
         return self::$_instance;
     }
@@ -105,14 +105,14 @@ class Yasc_Layout {
      * @param string $layoutPath
      * @return Yasc_Layout
      */
-    public function setLayoutPath( $layoutPath ) {
-        self::$_instance->_layoutPath = realpath( $layoutPath );
+    public function setLayoutPath($layoutPath) {
+        self::$_instance->_layoutPath = realpath($layoutPath);
 
-        if ( false === is_file( self::$_instance->_layoutPath ) ) {
-            throw new Yasc_Exception( "Layout file '{self::$_instance->_layoutPath}' not found" );
+        if (false === is_file(self::$_instance->_layoutPath)) {
+            throw new Yasc_Exception("Layout file '{self::$_instance->_layoutPath}' not found");
         }
 
-        self::$_instance->_layout = str_replace( '.phtml', '', basename( self::$_instance->_layoutPath ) );
+        self::$_instance->_layout = str_replace(".phtml", "", basename(self::$_instance->_layoutPath));
         return self::$_instance;
     }
 
@@ -129,7 +129,7 @@ class Yasc_Layout {
      * @param string $content
      * @return Yasc_Layout
      */
-    public function setContent( $content ) {
+    public function setContent($content) {
         self::$_instance->_content = $content;
         return self::$_instance;
     }

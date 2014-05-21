@@ -15,7 +15,7 @@
  *
  * @category Yasc
  * @package Yasc
- * @copyright Copyright (c) 2010 - 2011 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
+ * @copyright Copyright (c) 2010 - 2014 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
  * @version $Id$
  * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
  */
@@ -24,7 +24,7 @@
  * Class to handle a user defined function as an action.
  *
  * @package Yasc
- * @copyright Copyright (c) 2010 - 2011 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
+ * @copyright Copyright (c) 2010 - 2014 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
  * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
  * @author nebiros
  */
@@ -54,8 +54,8 @@ class Yasc_Function extends ReflectionFunction {
      *
      * @param string $name
      */
-    public function __construct( $name ) {
-        parent::__construct( $name );        
+    public function __construct($name) {
+        parent::__construct($name);        
         $this->process();
     }
 
@@ -72,7 +72,7 @@ class Yasc_Function extends ReflectionFunction {
      * @param string $method
      * @return Yasc_Function
      */
-    public function setMethod( $method ) {
+    public function setMethod($method) {
         $this->_method = $method;
         return $this;
     }
@@ -98,7 +98,7 @@ class Yasc_Function extends ReflectionFunction {
      * @param array $params
      * @return Yasc_Function
      */
-    public function setParams( Array $params ) {
+    public function setParams(Array $params) {
         $this->_params = $params;
         return $this;
     }
@@ -109,8 +109,8 @@ class Yasc_Function extends ReflectionFunction {
      * @param mixed $default
      * @return mixed
      */
-    public function getParam( $key, $default = null ) {
-        if ( true === isset( $this->_params[$key] ) ) {
+    public function getParam($key, $default = null) {
+        if (true === isset($this->_params[$key])) {
             return $this->_params[$key];
         }
 
@@ -123,7 +123,7 @@ class Yasc_Function extends ReflectionFunction {
      * @param mixed $value
      * @return Yasc_Function
      */
-    public function setParam( $key, $value = null ) {
+    public function setParam($key, $value = null) {
         $this->_params[$key] = $value;
         return $this;
     }
@@ -134,7 +134,7 @@ class Yasc_Function extends ReflectionFunction {
      * @return Yasc_Function
      */
     public function process() {
-        $this->_annotation = new Yasc_Function_Annotation( $this );        
+        $this->_annotation = new Yasc_Function_Annotation($this);        
         return $this;
     }
 }
