@@ -50,7 +50,7 @@ class Yasc_Function_Helper_Flash {
      * @return Yasc_Function_Helper_Flash
      */
     public static function getInstance() {
-        if ( null === self::$_instance ) {
+        if (null === self::$_instance) {
             self::$_instance = new self();
             self::$_instance->_initialize();
         }
@@ -65,7 +65,7 @@ class Yasc_Function_Helper_Flash {
     protected function _initialize() {
         session_start();
 
-        if ( false === isset( $_SESSION[__CLASS__] ) ) {
+        if (false === isset($_SESSION[__CLASS__])) {
             $_SESSION[__CLASS__] = array();
             $_SESSION[__CLASS__][self::TYPE_NOTICE] = array();
             $_SESSION[__CLASS__][self::TYPE_MESSAGE] = array();
@@ -80,9 +80,9 @@ class Yasc_Function_Helper_Flash {
      * @param string $type
      * @return Yasc_Function_Helper_Flash
      */
-    public function add( $msg, $type = self::TYPE_MESSAGE ) {
-        if ( true === is_array( $msg ) ) {
-            $_SESSION[__CLASS__][$type] = array_merge( $_SESSION[__CLASS__][$type], $msg );
+    public function add($msg, $type = self::TYPE_MESSAGE) {
+        if (true === is_array($msg)) {
+            $_SESSION[__CLASS__][$type] = array_merge($_SESSION[__CLASS__][$type], $msg);
         } else {
             $_SESSION[__CLASS__][$type][] = $msg;
         }
@@ -96,8 +96,8 @@ class Yasc_Function_Helper_Flash {
      * @param string $type
      * @return Yasc_Function_Helper_Flash 
      */
-    public function set( $msg, $type = self::TYPE_MESSAGE ) {
-        $_SESSION[__CLASS__][$type] = ( array ) $msg;
+    public function set($msg, $type = self::TYPE_MESSAGE) {
+        $_SESSION[__CLASS__][$type] = (array) $msg;
         return self::getInstance();
     }
     
@@ -106,7 +106,7 @@ class Yasc_Function_Helper_Flash {
      * @param string $type
      * @return array
      */
-    public function get( $type = self::TYPE_MESSAGE ) {
+    public function get($type = self::TYPE_MESSAGE) {
         return $_SESSION[__CLASS__][$type];
     }
     
@@ -115,7 +115,7 @@ class Yasc_Function_Helper_Flash {
      * @param string $type
      * @return Yasc_Function_Helper_Flash
      */
-    public function clear( $type = self::TYPE_MESSAGE ) {
+    public function clear($type = self::TYPE_MESSAGE) {
         $_SESSION[__CLASS__][$type] = array();
         return self::getInstance();
     }
@@ -125,8 +125,8 @@ class Yasc_Function_Helper_Flash {
      * @param string $type
      * @return bool
      */    
-    public function has( $type = self::TYPE_MESSAGE ) {
-        return ( false === empty( $_SESSION[__CLASS__][$type] ) ) ? true : false;
+    public function has($type = self::TYPE_MESSAGE) {
+        return (false === empty($_SESSION[__CLASS__][$type])) ? true : false;
     }
     
     /**
@@ -134,8 +134,8 @@ class Yasc_Function_Helper_Flash {
      * @param string $msg
      * @return Yasc_Function_Helper_Flash 
      */
-    public function notice( $msg ) {
-        $this->add( $msg, self::TYPE_NOTICE );
+    public function notice($msg) {
+        $this->add($msg, self::TYPE_NOTICE);
         return self::getInstance();
     }
     
@@ -144,8 +144,8 @@ class Yasc_Function_Helper_Flash {
      * @param string $msg
      * @return Yasc_Function_Helper_Flash 
      */    
-    public function message( $msg ) {
-        $this->add( $msg );
+    public function message($msg) {
+        $this->add($msg);
         return self::getInstance();
     }
     
@@ -154,8 +154,8 @@ class Yasc_Function_Helper_Flash {
      * @param string $msg
      * @return Yasc_Function_Helper_Flash 
      */    
-    public function warning( $msg ) {
-        $this->add( $msg, self::TYPE_WARNING );
+    public function warning($msg) {
+        $this->add($msg, self::TYPE_WARNING);
         return self::getInstance();
     }
     
@@ -164,8 +164,8 @@ class Yasc_Function_Helper_Flash {
      * @param string $msg
      * @return Yasc_Function_Helper_Flash 
      */    
-    public function error( $msg ) {
-        $this->add( $msg, self::TYPE_ERROR );
+    public function error($msg) {
+        $this->add($msg, self::TYPE_ERROR);
         return self::getInstance();
     }
 
@@ -176,19 +176,19 @@ class Yasc_Function_Helper_Flash {
      * @param string $className
      * @return string
      */
-    public function draw( $type = self::TYPE_MESSAGE, $className = null ) {
-		if ( true === empty( $_SESSION[__CLASS__][$type] ) ) {
+    public function draw($type = self::TYPE_MESSAGE, $className = null) {
+		if (true === empty($_SESSION[__CLASS__][$type])) {
 			return "";
 		}
 
 		$xhtml = "<ul class=\"{$className}\">";
 
-		foreach ( $_SESSION[__CLASS__][$type] as $msg ) {
+		foreach ($_SESSION[__CLASS__][$type] as $msg) {
 			$xhtml .= "<li>{$msg}</li>";
 		}
 
 		$xhtml .= "</ul>";
-        $this->clear( $type );
+        $this->clear($type);
 		return $xhtml;
     }
 
