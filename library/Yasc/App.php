@@ -161,6 +161,18 @@ class Yasc_App {
 
     /**
      *
+     * @return Yasc_App
+     */
+    protected function _setView() {
+        if (null === self::$_instance->_view) {
+            self::$_instance->_view = new Yasc_View();
+        }
+
+        return self::$_instance;
+    }
+
+    /**
+     *
      * @return Yasc_View
      */
     public function getView() {
@@ -184,6 +196,9 @@ class Yasc_App {
         self::$_instance->_configure();
         self::$_instance->_processFunctions();
         self::$_instance->_processRoutes();
+
+        self::$_instance->_setView();
+
         self::$_instance->_preDispatch();
         self::$_instance->_dispatch();
         self::$_instance->_postDispatch();
@@ -209,6 +224,11 @@ class Yasc_App {
         }
     }
 
+    /**
+     * Call "pre_dispatch" function.
+     * 
+     * @return bool
+     */
     protected function _preDispatch() {
         if (false === function_exists(self::PRE_DISPATCH_FUNCTION_NAME)) {
             return false;
@@ -218,6 +238,11 @@ class Yasc_App {
         $preDispatch->invoke();
     }
 
+    /**
+     * Call "post_dispatch" function.
+     * 
+     * @return bool
+     */
     protected function _postDispatch() {
         if (false === function_exists(self::POST_DISPATCH_FUNCTION_NAME)) {
             return false;
@@ -265,11 +290,7 @@ class Yasc_App {
      *
      * @return void
      */
-    protected function _dispatch() {
-        if (null === self::$_instance->_view) {
-            self::$_instance->_view = new Yasc_View();
-        }        
-        
+    protected function _dispatch() {        
         self::$_instance->_execute();
 
         $buffer = self::$_instance->_view->getBuffer();
@@ -283,8 +304,7 @@ class Yasc_App {
         }
 
         if (null !== $buffer) {
-            echo $buffer;
-            exit();
+            echo $buffer; return;
         }        
     }
 
