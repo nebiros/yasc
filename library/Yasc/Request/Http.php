@@ -199,8 +199,7 @@ class Yasc_Request_Http {
      */
     public function processUrl($serverName = null, $uri = null) {
         if (null === $serverName || $serverName == $this->_urlDelimiter) {
-            $serverNameAndPort = explode(":", $_SERVER["HTTP_HOST"]);
-            $serverName = array_shift($serverNameAndPort);
+            $httpHost = $serverName = $_SERVER["HTTP_HOST"];
         }
         
         if (false !== ($port = strstr($serverName, $this->_urlVariable))) {
@@ -228,7 +227,13 @@ class Yasc_Request_Http {
 
         $url .= "://";
 
-        if (($port != $this->_defaultPort)
+        if (isset($httpHost)) {
+            if (false !== strstr($httpHost, $port)) {
+                $url .= $serverName . ":" . $port;                
+            } else {
+                $url .= $serverName;
+            }            
+        } else if (($port != $this->_defaultPort)
             && $port != $this->_sslPort) {
             $url .= $serverName . ":" . $port;
         } else {
