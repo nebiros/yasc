@@ -199,12 +199,13 @@ class Yasc_Request_Http {
      */
     public function processUrl($serverName = null, $uri = null) {
         if (null === $serverName || $serverName == $this->_urlDelimiter) {
-            $serverName = $_SERVER["SERVER_NAME"];
+            $serverNameAndPort = explode(":", $_SERVER["HTTP_HOST"]);
+            $serverName = array_shift($serverNameAndPort);
         }
         
         if (false !== ($port = strstr($serverName, $this->_urlVariable))) {
             $serverName = str_replace($port, "", $serverName);
-            $port = str_replace($this->_urlVariable, "", $port);            
+            $port = str_replace($this->_urlVariable, "", $port);
         } else {
             $port = $_SERVER["SERVER_PORT"];
         }
