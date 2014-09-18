@@ -219,10 +219,12 @@ class Yasc_Request_Http {
                 break;
         }
 
-        if ($port == $this->_sslPort) {
-            $url .= "s";
+        if (substr($url, -1) != "s") {
+            if ($port == $this->_sslPort) {
+                $url .= "s";
+            }
         }
-
+        
         $url .= "://";
 
         if (isset($httpHost)) {
