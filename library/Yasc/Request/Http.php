@@ -211,18 +211,16 @@ class Yasc_Request_Http {
 
         $url = $this->_scheme;
 
-        if (gethostbyname($serverName) != $_SERVER["SERVER_ADDR"]) {
-            if ($port == $this->_sslPort) {
+        switch (true) {
+            case (true === isset($_SERVER["HTTPS"]) && ($_SERVER["HTTPS"] == "on" || $_SERVER["HTTPS"] === true)):
+            case (true === isset($_SERVER["HTTP_SCHEME"]) && ($_SERVER["HTTP_SCHEME"] == "https")):
+            case (true === isset($_SERVER["SERVER_PORT"]) && ($_SERVER["SERVER_PORT"] == 443)):
                 $url .= "s";
-            }
-        } else {
-            switch (true) {
-                case (true === isset($_SERVER["HTTPS"]) && ($_SERVER["HTTPS"] == "on" || $_SERVER["HTTPS"] === true)):
-                case (true === isset($_SERVER["HTTP_SCHEME"]) && ($_SERVER["HTTP_SCHEME"] == "https")):
-                case (true === isset($_SERVER["SERVER_PORT"]) && ($_SERVER["SERVER_PORT"] == 443)):
-                    $url .= "s";
-                    break;
-            }
+                break;
+        }
+
+        if ($port == $this->_sslPort) {
+            $url .= "s";
         }
 
         $url .= "://";
