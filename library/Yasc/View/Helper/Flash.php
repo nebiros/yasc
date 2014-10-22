@@ -46,7 +46,7 @@ class Yasc_View_Helper_Flash extends Yasc_View_Helper_HelperAbstract {
      */
     public function messages() {
         /* @var $f Yasc_Function_Helper_Flash */
-        $f = Yasc_App::functionHelper( "flash" );
+        $f = Yasc_App::functionHelper("flash");
         return $f;
     }
 }

@@ -42,7 +42,7 @@ class Yasc_View_Helper_HelperAbstract implements Yasc_View_Helper {
      * @param Yasc_View $view
      * @return Yasc_View_Helper_HelperAbstract 
      */
-    public function setView( Yasc_View $view ) {
+    public function setView(Yasc_View $view) {
         $this->view = $view;
         return $this;
     }
