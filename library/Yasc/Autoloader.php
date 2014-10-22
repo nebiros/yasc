@@ -109,7 +109,7 @@ class Yasc_Autoloader {
     protected static function _require($filename, Array $dirs) {
         $manager = Yasc_Autoloader_Manager::getInstance();        
         $prefix = $manager->getPrefix($filename);
-        $prefixPath = $dirs[$prefix];
+        $prefixPath = isset($dirs[$prefix]) ? $dirs[$prefix] : null;
 
         if (false === empty($prefixPath)) {
             $file = realpath($prefixPath . "/" . basename($filename));
