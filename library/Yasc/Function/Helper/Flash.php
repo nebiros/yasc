@@ -63,8 +63,6 @@ class Yasc_Function_Helper_Flash {
      * @return void
      */
     protected function _initialize() {
-        session_start();
-
         if (false === isset($_SESSION[__CLASS__])) {
             $_SESSION[__CLASS__] = array();
             $_SESSION[__CLASS__][self::TYPE_NOTICE] = array();
