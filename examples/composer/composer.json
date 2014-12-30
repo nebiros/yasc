@@ -1,5 +1,6 @@
 {
     "require": {
+        "nebiros/yasc": "dev-master",
         "symfony/translation": "2.5.*@dev"
     }
 }

@@ -1,7 +1,9 @@
 <?php
 
-// Include Yasc.
-require_once "../../library/Yasc.php";
+// composer autoload.
+require_once "../../vendor/autoload.php";
+// yasc runtime.
+require_once "../../vendor/nebiros/yasc/src/Yasc.php";
 
 /**
  * Function to configure some yasc options. This function is optional you don't
