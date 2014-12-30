@@ -1,0 +1,22 @@
+{
+    "name": "nebiros/yasc",
+    "description": "Yet Another Sinatra Clone",
+    "keywords": ["sinatra", "framework", "microframework"],
+    "homepage": "https://github.com/nebiros/yasc",
+    "license": "BSD-3-Clause",
+    "authors": [
+        {
+            "name": "Juan Felipe Alvarez Saldarriaga",
+            "email": "nebiros@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=5.2.4"
+    },
+    "autoload": {
+        "psr-0": {
+            "Yasc_": "src/"
+        }
+    }
+}
