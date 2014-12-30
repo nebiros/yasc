@@ -57,11 +57,22 @@ Prerequisites
 Installation
 ------------
 
-Easiest way to install `yasc` is clone this repository into your project, or add it as a `git submodule`.
+Easiest way to install `yasc` is through [composer](https://getcomposer.org), 
+
+```bash
+php composer.phar require nebiros/yasc "~0.1.18"
+```
+
+or add it as a `git submodule`.
 
 Create a **index.php** or a **app.php** file and include `yasc`, like:
 
-    require_once "yasc/Yasc.php";
+```php
+// composer autoload.
+require_once "vendor/autoload.php";
+// yasc runtime.
+require_once "vendor/nebiros/yasc/src/Yasc.php";
+```
 
 Add a function and a pattern using an annotation for your application index, 
 your script will be something like this:
@@ -69,8 +80,10 @@ your script will be something like this:
 ```php
 <?php
 
-// Include Yasc.
-require_once "yasc/Yasc.php";
+// composer autoload.
+require_once "vendor/autoload.php";
+// yasc runtime.
+require_once "vendor/nebiros/yasc/src/Yasc.php";
 
 /**
  * @GET("/")
@@ -123,8 +136,10 @@ Simple Example
 ```php
 <?php
 
-// Include Yasc.
-require_once "yasc/Yasc.php";
+// composer autoload.
+require_once "vendor/autoload.php";
+// yasc runtime.
+require_once "vendor/nebiros/yasc/src/Yasc.php";
 
 /**
  * @GET("/")
