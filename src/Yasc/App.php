@@ -82,6 +82,8 @@ class Yasc_App {
      * @var Yasc_Layout
      */
     protected $_layout = null;
+
+    protected $_namespace = null;
     
     /**
      *
@@ -192,7 +194,9 @@ class Yasc_App {
      *
      * @return void
      */
-    public function run() {
+    public function run($namespace = null) {
+        self::$_instance->_namespace = $namespace;
+
         self::$_instance->_configure();
         self::$_instance->_processFunctions();
         self::$_instance->_processRoutes();
@@ -211,12 +215,17 @@ class Yasc_App {
      */
     protected function _configure() {
         self::$_instance->_config = new Yasc_App_Config();
-        
-        if (false === function_exists(self::CONFIGURATION_FUNCTION_NAME)) {
+
+        $configFunctionName = self::CONFIGURATION_FUNCTION_NAME;
+        if (self::$_instance->_namespace != null) {
+            $configFunctionName = self::$_instance->_namespace . "\\" . self::CONFIGURATION_FUNCTION_NAME;
+        }
+
+        if (false === function_exists($configFunctionName)) {
             return false;
         }
 
-        $configure = new ReflectionFunction(self::CONFIGURATION_FUNCTION_NAME);
+        $configure = new ReflectionFunction($configFunctionName);
         $configure->invoke();
 
         if (null !== self::$_instance->_config->getLayoutScript()) {
@@ -230,11 +239,16 @@ class Yasc_App {
      * @return bool
      */
     protected function _preDispatch() {
-        if (false === function_exists(self::PRE_DISPATCH_FUNCTION_NAME)) {
+        $preDispatchFunctionName = self::PRE_DISPATCH_FUNCTION_NAME;
+        if (self::$_instance->_namespace != null) {
+            $preDispatchFunctionName = self::$_instance->_namespace . "\\" . self::PRE_DISPATCH_FUNCTION_NAME;
+        }
+
+        if (false === function_exists($preDispatchFunctionName)) {
             return false;
         }
 
-        $preDispatch = new ReflectionFunction(self::PRE_DISPATCH_FUNCTION_NAME);
+        $preDispatch = new ReflectionFunction($preDispatchFunctionName);
         $preDispatch->invoke();
     }
 
@@ -244,11 +258,16 @@ class Yasc_App {
      * @return bool
      */
     protected function _postDispatch() {
-        if (false === function_exists(self::POST_DISPATCH_FUNCTION_NAME)) {
+        $postDispatchFunctionName = self::POST_DISPATCH_FUNCTION_NAME;
+        if (self::$_instance->_namespace != null) {
+            $postDispatchFunctionName = self::$_instance->_namespace . "\\" . self::POST_DISPATCH_FUNCTION_NAME;
+        }
+
+        if (false === function_exists($postDispatchFunctionName)) {
             return false;
         }
 
-        $postDispatch = new ReflectionFunction(self::POST_DISPATCH_FUNCTION_NAME);
+        $postDispatch = new ReflectionFunction($postDispatchFunctionName);
         $postDispatch->invoke();
     }
 

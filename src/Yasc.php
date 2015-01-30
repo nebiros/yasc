@@ -43,7 +43,7 @@ Yasc_Autoloader::register();
  * @author nebiros
  */
 class Yasc {
-    const VERSION = "0.1.19";
+    const VERSION = "0.1.20";
 
     /**
      * App.
@@ -71,11 +71,7 @@ class Yasc {
      *
      * @return void
      */
-    public function run() {
-        $this->getApp()->run();
+    public function run($namespace = null) {
+        $this->getApp()->run($namespace);
     }
 }
-
-$yasc = new Yasc();
-$yasc->run();
-unset($yasc);
