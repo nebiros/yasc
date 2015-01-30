@@ -68,10 +68,16 @@ or add it as a `git submodule`.
 Create a **index.php** or a **app.php** file and include `yasc`, like:
 
 ```php
+namespace My\App;
+
 // composer autoload.
 require_once "vendor/autoload.php";
 // yasc runtime.
 require_once "vendor/nebiros/yasc/src/Yasc.php";
+
+$yasc = new \Yasc();
+$yasc->run(__NAMESPACE__);
+unset($yasc);
 ```
 
 Add a function and a pattern using an annotation for your application index, 
@@ -79,11 +85,16 @@ your script will be something like this:
 
 ```php
 <?php
+namespace My\App;
 
 // composer autoload.
 require_once "vendor/autoload.php";
 // yasc runtime.
 require_once "vendor/nebiros/yasc/src/Yasc.php";
+
+$yasc = new \Yasc();
+$yasc->run(__NAMESPACE__);
+unset($yasc);
 
 /**
  * @GET("/")
@@ -135,11 +146,16 @@ Simple Example
 
 ```php
 <?php
+namespace My\App;
 
 // composer autoload.
 require_once "vendor/autoload.php";
 // yasc runtime.
 require_once "vendor/nebiros/yasc/src/Yasc.php";
+
+$yasc = new \Yasc();
+$yasc->run(__NAMESPACE__);
+unset($yasc);
 
 /**
  * @GET("/")
