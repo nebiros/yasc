@@ -189,6 +189,10 @@ class Yasc_App {
         return self::$_instance->_layout;
     }
 
+    public function getNamespace() {
+        return self::$_instance->_namespace;
+    }
+
     /**
      * Start yasc.
      *
