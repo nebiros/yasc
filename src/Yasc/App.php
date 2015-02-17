@@ -83,7 +83,17 @@ class Yasc_App {
      */
     protected $_layout = null;
 
-    protected $_namespace = null;
+    /**
+     * 
+     * @var string|array
+     */
+    protected $_namespaces = null;
+
+    /**
+     * 
+     * @var array
+     */
+    protected $_userDefinedFunctions = null;
     
     /**
      *
@@ -104,6 +114,7 @@ class Yasc_App {
      */
     protected function _initialize() {
         session_start();
+
         self::$_instance->_autoloaderManager = Yasc_Autoloader_Manager::getInstance();
         self::$_instance->_helperManager = new Yasc_App_HelperManager();
     }
@@ -189,17 +200,40 @@ class Yasc_App {
         return self::$_instance->_layout;
     }
 
-    public function getNamespace() {
-        return self::$_instance->_namespace;
+    protected function _setNamespaces($namespaces) {
+        if (!is_array($namespaces)) {
+            $namespaces = (array) $namespaces;
+        }
+
+        self::$_instance->_namespaces = $namespaces;
+
+        return $this;
+    }
+
+    public function getNamespaces() {
+        return self::$_instance->_namespaces;
+    }
+
+    public function getUserDefinedFunctions() {
+        $functions = get_defined_functions();
+
+        if (isset($functions["user"]) && is_array($functions["user"]) && count($functions["user"]) > 0) {
+            self::$_instance->_userDefinedFunctions = $functions["user"];
+        }
+
+        return self::$_instance->_userDefinedFunctions;
     }
 
     /**
      * Start yasc.
      *
+     * @param string|array $namespaces
      * @return void
      */
-    public function run($namespace = null) {
-        self::$_instance->_namespace = $namespace;
+    public function run($namespaces = null) {
+        if ($namespaces !== null) {
+            self::$_instance->_setNamespaces($namespaces);    
+        }
 
         self::$_instance->_configure();
         self::$_instance->_processFunctions();
@@ -220,12 +254,22 @@ class Yasc_App {
     protected function _configure() {
         self::$_instance->_config = new Yasc_App_Config();
 
+        $userFunctions = self::$_instance->getUserDefinedFunctions();
+        // default configuration function name without a namespace.
         $configFunctionName = self::CONFIGURATION_FUNCTION_NAME;
-        if (self::$_instance->_namespace != null) {
-            $configFunctionName = self::$_instance->_namespace . "\\" . self::CONFIGURATION_FUNCTION_NAME;
+
+        if (self::$_instance->getNamespaces() !== null) {
+            // lookup for at least one configuration function inside each namespace.
+            foreach (self::$_instance->getNamespaces() as $namespace) {
+                $tmp = strtolower($namespace) . "\\" . self::CONFIGURATION_FUNCTION_NAME;
+                if (in_array($tmp, $userFunctions)) {
+                    $configFunctionName = $tmp;
+                    break;
+                }
+            }
         }
 
-        if (false === function_exists($configFunctionName)) {
+        if (!in_array($configFunctionName, $userFunctions)) {
             return false;
         }
 
@@ -242,13 +286,21 @@ class Yasc_App {
      * 
      * @return bool
      */
-    protected function _preDispatch() {
+    protected function _preDispatch() {        
+        $userFunctions = self::$_instance->getUserDefinedFunctions();
         $preDispatchFunctionName = self::PRE_DISPATCH_FUNCTION_NAME;
-        if (self::$_instance->_namespace != null) {
-            $preDispatchFunctionName = self::$_instance->_namespace . "\\" . self::PRE_DISPATCH_FUNCTION_NAME;
+
+        if (self::$_instance->getNamespaces() !== null) {
+            foreach (self::$_instance->getNamespaces() as $namespace) {
+                $tmp = strtolower($namespace) . "\\" . self::PRE_DISPATCH_FUNCTION_NAME;
+                if (in_array($tmp, $userFunctions)) {
+                    $preDispatchFunctionName = $tmp;
+                    break;
+                }
+            }
         }
 
-        if (false === function_exists($preDispatchFunctionName)) {
+        if (!in_array($preDispatchFunctionName, $userFunctions)) {
             return false;
         }
 
@@ -262,12 +314,20 @@ class Yasc_App {
      * @return bool
      */
     protected function _postDispatch() {
+        $userFunctions = self::$_instance->getUserDefinedFunctions();
         $postDispatchFunctionName = self::POST_DISPATCH_FUNCTION_NAME;
-        if (self::$_instance->_namespace != null) {
-            $postDispatchFunctionName = self::$_instance->_namespace . "\\" . self::POST_DISPATCH_FUNCTION_NAME;
+
+        if (self::$_instance->getNamespaces() !== null) {
+            foreach (self::$_instance->getNamespaces() as $namespace) {
+                $tmp = strtolower($namespace) . "\\" . self::POST_DISPATCH_FUNCTION_NAME;
+                if (in_array($tmp, $userFunctions)) {
+                    $postDispatchFunctionName = $tmp;
+                    break;
+                }
+            }
         }
 
-        if (false === function_exists($postDispatchFunctionName)) {
+        if (!in_array($postDispatchFunctionName, $userFunctions)) {
             return false;
         }
 
@@ -281,15 +341,23 @@ class Yasc_App {
      * @return void
      */
     protected function _processFunctions() {
-        $functions = get_defined_functions();
+        $userFunctions = self::$_instance->getUserDefinedFunctions();
 
-        if (true === empty($functions["user"])) {
+        if ($userFunctions === null) {
             throw new Yasc_Exception("No user defined functions");
         }
 
-        foreach ($functions["user"] as $name) {
+        $namespaces = self::$_instance->getNamespaces();
+
+        foreach ($userFunctions as $name) {
             $func = new Yasc_Function($name);
-            
+
+            if ($namespaces !== null) {
+                if (!in_array($func->getNamespaceName(), $namespaces)) {
+                    continue;
+                }
+            }
+
             if (false === $func->getAnnotation()->hasAnnotation()) {
                 continue;
             }
