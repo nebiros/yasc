@@ -246,7 +246,7 @@ class Yasc_Request_Http {
             $uri = $_SERVER["REQUEST_URI"];
         }
         
-        if ($uri[0] != $this->_urlDelimiter) {
+        if (isset($uri[0]) && $uri[0] != $this->_urlDelimiter) {
             $uri = $this->_urlDelimiter . $uri;
         }        
         
@@ -255,7 +255,8 @@ class Yasc_Request_Http {
         $this->_url = trim($url, $this->_urlDelimiter);
         $this->_urlComponents = parse_url($this->_url);
 
-        $urlPattern = str_replace($_SERVER["SCRIPT_NAME"], "", rtrim($this->_urlComponents["path"], "/"));
+        $path = (isset($this->_urlComponents["path"])) ? $this->_urlComponents["path"] : "";
+        $urlPattern = str_replace($_SERVER["SCRIPT_NAME"], "", rtrim($path, "/"));
         $this->_urlPattern = ($urlPattern) ? $urlPattern : $this->_urlDelimiter;
 
         return $this;

@@ -38,7 +38,10 @@ class Yasc_View_Helper_Url extends Yasc_View_Helper_HelperAbstract {
      * @return Yasc_Request_Http 
      */
     public function url(Array $options = null) {
-        $http = new Yasc_Request_Http($options["server_name"], $options["uri"]);
+        $serverName = isset($options["server_name"]) ? $options["server_name"] : null;
+        $uri = isset($options["uri"]) ? $options["uri"] : null;
+        
+        $http = new Yasc_Request_Http($serverName, $uri);
         return $http;
     }
 }

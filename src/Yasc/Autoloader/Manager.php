@@ -342,7 +342,7 @@ class Yasc_Autoloader_Manager {
         }
         
         $tmp = array();
-        if (strpos($className, "_")) {
+        if (isset($className) && strpos($className, "_")) {
             $tmp = explode("_", $className);
         }
 

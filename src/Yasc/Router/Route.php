@@ -249,7 +249,7 @@ class Yasc_Router_Route {
         if (true == preg_match($pattern, $this->_http->getUrlPattern(), $matches)) {
             $this->_pattern = $pattern;
             $this->_matches = $matches;
-            $this->_paramsList = $paramsList;
+            $this->_paramsList = (isset($paramsList)) ? $paramsList : array();
             
             return true;
         }
