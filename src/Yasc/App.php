@@ -426,14 +426,15 @@ class Yasc_App {
      *
      * @param mixed $key
      * @param mixed $default
+     * @param int $sanitizeFilter
      * @return mixed 
      */
-    public static function params($key = null, $default = null) {
+    public static function params($key = null, $default = null, $sanitizeFilter = FILTER_SANITIZE_STRING) {
         if (null === $key) {
             return self::$_instance->getFunction()->getParams();
         }
         
-        return self::$_instance->getFunction()->getParam($key, $default);
+        return filter_var(self::$_instance->getFunction()->getParam($key, $default), $sanitizeFilter);
     }
     
     /**
