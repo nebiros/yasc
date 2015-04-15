@@ -250,8 +250,6 @@ class Yasc_App {
      * @return bool
      */
     protected function _configure() {
-        session_start();
-
         self::$_instance->_config = new Yasc_App_Config();
 
         $userFunctions = self::$_instance->getUserDefinedFunctions();
@@ -287,8 +285,6 @@ class Yasc_App {
      * @return bool
      */
     protected function _preDispatch() {
-        session_start();
-
         $userFunctions = self::$_instance->getUserDefinedFunctions();
         $preDispatchFunctionName = self::PRE_DISPATCH_FUNCTION_NAME;
 
@@ -316,8 +312,6 @@ class Yasc_App {
      * @return bool
      */
     protected function _postDispatch() {
-        session_start();
-        
         $userFunctions = self::$_instance->getUserDefinedFunctions();
         $postDispatchFunctionName = self::POST_DISPATCH_FUNCTION_NAME;
 
@@ -385,9 +379,7 @@ class Yasc_App {
      *
      * @return void
      */
-    protected function _dispatch() {     
-        session_start();
-
+    protected function _dispatch() {
         self::$_instance->_execute();
 
         $buffer = self::$_instance->_view->getBuffer();
