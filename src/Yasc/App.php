@@ -37,8 +37,8 @@ class Yasc_App {
      *
      * @var Yasc_App
      */
-    protected static $_instance = null;    
-    
+    protected static $_instance = null;   
+	    
     /**
      * 
      * @var Yasc_Autoloader_Manager
@@ -50,6 +50,16 @@ class Yasc_App {
      * @var Yasc_App_HelperManager 
      */
     protected $_helperManager = null;
+	
+	/**
+	 * @var Yasc_Http_Request
+	 */
+	protected $_request = null;
+	
+	/**
+	 * @var Yasc_Router
+	 */
+	protected $_router = null;
 
     /**
      * Yasc configuration.
@@ -94,6 +104,11 @@ class Yasc_App {
      * @var array
      */
     protected $_userDefinedFunctions = null;
+	
+	/**
+	 * @var Yasc_Http_Response
+	 */
+	protected $_response = null;
     
     /**
      *
@@ -115,6 +130,9 @@ class Yasc_App {
     protected function _initialize() {
         self::$_instance->_autoloaderManager = Yasc_Autoloader_Manager::getInstance();
         self::$_instance->_helperManager = new Yasc_App_HelperManager();
+		self::$_instance->_request = new Yasc_Http_Request();
+		self::$_instance->_router = new Yasc_Router();
+		self::$_instance->_response = new Yasc_Http_Response();
     }
 
     protected function __construct() {}
@@ -136,14 +154,27 @@ class Yasc_App {
     public function getAutoloaderManager() {
         return self::$_instance->_autoloaderManager;
     }
-    
-    
+	
     /**
      *
      * @return Yasc_App_HelperManager
      */
     public function getHelperManager() {
         return self::$_instance->_helperManager;
+    }
+	
+	/**
+	 * @return Yasc_Http_Request
+	 */
+    public function getRequest() {
+        return self::$_instance->_request;
+    }
+	
+	/**
+	 * @return Yasc_Router
+	 */
+    public function getRouter() {
+        return self::$_instance->_router;
     }
     
     /**
@@ -198,6 +229,10 @@ class Yasc_App {
         return self::$_instance->_layout;
     }
 
+	/**
+	 * @param mixed $namespaces
+	 * @return Yasc_App
+	 */
     protected function _setNamespaces($namespaces) {
         if (!is_array($namespaces)) {
             $namespaces = (array) $namespaces;
@@ -208,10 +243,16 @@ class Yasc_App {
         return $this;
     }
 
+	/**
+	 * @return array
+	 */
     public function getNamespaces() {
         return self::$_instance->_namespaces;
     }
 
+	/**
+	 * @return array
+	 */
     public function getUserDefinedFunctions() {
         $functions = get_defined_functions();
 
@@ -221,6 +262,13 @@ class Yasc_App {
 
         return self::$_instance->_userDefinedFunctions;
     }
+	
+	/**
+	 * @return Yasc_Http_Response
+	 */
+	public function getResponse() {
+		return self::$_instance->_response;
+	}
 
     /**
      * Start yasc.
@@ -232,7 +280,9 @@ class Yasc_App {
         if ($namespaces !== null) {
             self::$_instance->_setNamespaces($namespaces);    
         }
-
+		
+		self::$_instance->_request->setCurrentUrl();
+		
         self::$_instance->_configure();
         self::$_instance->_processFunctions();
         self::$_instance->_processRoutes();
@@ -242,6 +292,8 @@ class Yasc_App {
         self::$_instance->_preDispatch();
         self::$_instance->_dispatch();
         self::$_instance->_postDispatch();
+		
+		self::$_instance->_response->sendResponse();
     }
 
     /**
@@ -370,8 +422,7 @@ class Yasc_App {
      * @return void
      */
     protected function _processRoutes() {
-        $router = new Yasc_Router();
-        self::$_instance->_function = $router->route();
+        self::$_instance->_function = $this->getRouter()->route();
     }
 
     /**
@@ -391,10 +442,8 @@ class Yasc_App {
             self::$_instance->_view->render(self::$_instance->_layout->getLayout());            
             $buffer = self::$_instance->_view->getBuffer();
         }
-
-        if (null !== $buffer) {
-            echo $buffer; return;
-        }        
+		
+		$this->_response->setBody($buffer);
     }
 
     /**
@@ -456,4 +505,18 @@ class Yasc_App {
         return self::$_instance->getHelperManager()->getHelper($name, 
             Yasc_App_HelperManager::HELPER_TYPE_FUNCTION);
     }
+	
+	/**
+	 * @return Yasc_Http_Request
+	 */
+	public static function request() {
+		return self::$_instance->getRequest(); 
+	}
+	
+	/**
+	 * @return Yasc_Http_Request
+	 */	
+	public static function response() {
+		return self::$_instance->getResponse(); 
+	}
 }

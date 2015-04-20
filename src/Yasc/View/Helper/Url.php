@@ -35,13 +35,21 @@ class Yasc_View_Helper_Url extends Yasc_View_Helper_HelperAbstract {
     /**
      *
      * @param array $options
-     * @return Yasc_Request_Http 
+     * @return string 
      */
     public function url(Array $options = null) {
         $serverName = isset($options["server_name"]) ? $options["server_name"] : null;
-        $uri = isset($options["uri"]) ? $options["uri"] : null;
-        
-        $http = new Yasc_Request_Http($serverName, $uri);
-        return $http;
+        $path = isset($options["path"]) ? $options["path"] : null;
+
+		    return Yasc_App::getInstance()->getRouter()->url($serverName, $path);
+    }
+	
+    /**
+     *
+     * @param string $path
+     * @return string 
+     */
+    public function urlFor($path) {
+		    return Yasc_App::getInstance()->getRouter()->urlFor($path);
     }
 }

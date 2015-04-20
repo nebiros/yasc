@@ -29,42 +29,19 @@
  * @author nebiros
  */
 class Yasc_Router {
-    const METHOD_GET = "get";
-    const METHOD_POST = "post";
-    const METHOD_PUT = "put";
-    const METHOD_DELETE = "delete";
-
     /**
-     * App class.
-     *
      * @var Yasc_App
      */
     protected $_app = null;
+	
+	/**
+	 * @var Yasc_Http_Request
+	 */
+	protected $_request = null;
 
-    /**
-     *
-     * @param Yasc_App $app
-     */
     public function __construct() {
         $this->_app = Yasc_App::getInstance();
-    }
-
-    /**
-     *
-     * @param Yasc_App $app
-     * @return Yasc_Router
-     */
-    public function setApp(Yasc_App $app) {
-        $this->_app = $app;
-        return $this;
-    }
-
-    /**
-     *
-     * @return Yasc_App
-     */
-    public function getApp() {
-        return $this->_app;
+		$this->_request = $this->_app->getRequest();
     }
 
     /**
@@ -73,13 +50,28 @@ class Yasc_Router {
      * @return Yasc_Function
      */
     public function route() {
-        $route = new Yasc_Router_Route($this->getApp()->getFunctions());
+        $route = new Yasc_Router_Route($this->_app->getFunctions());
         $requestedFunction = $route->match()->getRequestedFunction();
-
-        if (null === $requestedFunction) {
-            throw new Yasc_Router_Exception("Requested function not found, request URI: '{$_SERVER["REQUEST_URI"]}'");
-        }
 
         return $requestedFunction;
     }
+	
+	/**
+	 * @param string $serverName
+	 * @param string $path
+	 * @return string
+	 */
+	public function url($serverName, $path) {
+		$result = $this->_request->buildUrl($serverName, $path);
+		return $result["url"];
+	}
+		
+	/**
+	 * @param string $path
+	 * @return string
+	 */
+	public function urlFor($path) {
+		$result = $this->_request->buildUrl(null, $path);
+		return $result["url"];
+	}
 }

@@ -32,6 +32,11 @@
  */
 class Yasc_Function_Annotation {
     /**
+     * HEAD annotation regex.
+     */
+    const HEAD = "/(@HEAD\((.*)\))/i";
+	
+    /**
      * GET annotation regex.
      */
     const GET = "/(@GET\((.*)\))/i";
@@ -50,6 +55,16 @@ class Yasc_Function_Annotation {
      * DELETE annotation regex.
      */
     const DELETE = "/(@DELETE\((.*)\))/i";
+	
+    /**
+     * PATCH annotation regex.
+     */
+    const PATCH = "/(@PATCH\((.*)\))/i";
+	
+    /**
+     * OPTIONS annotation regex.
+     */
+    const OPTIONS = "/(@OPTIONS\((.*)\))/i";
 
     const ANNOTATION = 1;
     const PATTERN = 2;
@@ -113,14 +128,20 @@ class Yasc_Function_Annotation {
      * @return bool
      */
     protected function _match(Yasc_Function $function) {
-        if (preg_match(self::GET, $function->getDocComment(), $matches)) {
-            $function->setMethod(Yasc_Router::METHOD_GET);
+        if (preg_match(self::HEAD, $function->getDocComment(), $matches)) {
+            $function->setMethod(Yasc_Http_Request::METHOD_HEAD);
+		} else if (preg_match(self::GET, $function->getDocComment(), $matches)) {
+            $function->setMethod(Yasc_Http_Request::METHOD_GET);
         } else if (preg_match(self::POST, $function->getDocComment(), $matches)) {
-            $function->setMethod(Yasc_Router::METHOD_POST);
+            $function->setMethod(Yasc_Http_Request::METHOD_POST);
         } else if (preg_match(self::PUT, $function->getDocComment(), $matches)) {
-            $function->setMethod(Yasc_Router::METHOD_PUT);
+            $function->setMethod(Yasc_Http_Request::METHOD_PUT);
         } else if (preg_match(self::DELETE, $function->getDocComment(), $matches)) {
-            $function->setMethod(Yasc_Router::METHOD_DELETE);
+            $function->setMethod(Yasc_Http_Request::METHOD_DELETE);        
+		} else if (preg_match(self::PATCH, $function->getDocComment(), $matches)) {
+			$function->setMethod(Yasc_Http_Request::METHOD_PATCH);        
+		} else if (preg_match(self::OPTIONS, $function->getDocComment(), $matches)) {
+			$function->setMethod(Yasc_Http_Request::METHOD_OPTIONS);
         } else {
             return false;
         }

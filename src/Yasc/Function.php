@@ -41,7 +41,7 @@ class Yasc_Function extends ReflectionFunction {
      *
      * @var string
      */
-    protected $_method = Yasc_Router::METHOD_GET;
+    protected $_method = Yasc_Http_Request::METHOD_GET;
 
     /**
      * Function params.

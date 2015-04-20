@@ -225,7 +225,7 @@ function update() {
     // are not supported.
     
     /*
-    <form id="put" name="put" action="<?php echo $this->url(array("uri" => "/update")) ?>" method="post">
+    <form id="put" name="put" action="<?php echo $this->url(array("path" => "/update")) ?>" method="post">
         <p>First name: <input type="text" name="first_name" /></p>
         <p>Last name: <input type="text" name="last_name" /></p>
         <p><input type="submit" value="Update" /></p>
@@ -247,7 +247,7 @@ function save_update() {
     $flash = Yasc_App::functionHelper("flash");
     $flash->message("Done.");
     
-    return header("Location: " . Yasc_App::viewHelper("url")->url(array("uri" => "/update")));
+    return header("Location: " . Yasc_App::viewHelper("url")->url(array("path" => "/update")));
 }
 
 /**
@@ -259,5 +259,5 @@ function destroy() {
     // $mysql = Yasc_App::config()->getOption("db");
     // $mysql->delete("table1", "id = {$_POST["id"]}");
     
-    return header("Location: " . Yasc_App::viewHelper("url")->url(array("uri" => "/update")));
+    return header("Location: " . Yasc_App::viewHelper("url")->url(array("path" => "/update")));
 }

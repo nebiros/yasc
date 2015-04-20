@@ -56,9 +56,9 @@ class Yasc_Router_Route {
     
     /**
      *
-     * @var Yasc_Request_Http
+     * @var Yasc_Http_Request
      */
-    protected $_http = null;
+    protected $_request = null;
     
     /**
      *
@@ -84,7 +84,7 @@ class Yasc_Router_Route {
      */
     public function __construct(Array $functions) {
         $this->_functions = $functions;
-        $this->_http = new Yasc_Request_Http();
+        $this->_request = Yasc_App::getInstance()->getRequest();
     }
 
     /**
@@ -123,9 +123,8 @@ class Yasc_Router_Route {
                 throw new Yasc_Router_Exception("Function is not a instance of Yasc_Function");
             }
 
-            if (strtolower($_SERVER["REQUEST_METHOD"]) != $function->getMethod()) {
-                if (strtolower($_SERVER["REQUEST_METHOD"]) == Yasc_Router::METHOD_POST 
-                    && true === array_key_exists("_method", $_POST)) {
+            if ($this->_request->getMethod() != $function->getMethod()) {
+                if ($this->_request->getMethod() == Yasc_Http_Request::METHOD_POST && isset($_POST["_method"])) {
                     if (strtolower($_POST["_method"]) == $function->getMethod()) {
                         if (true === $this->_lookup($function)) {
                             $this->_requestedFunction = $function;
@@ -138,8 +137,7 @@ class Yasc_Router_Route {
 
                 continue;
             } else {
-                if (strtolower($_SERVER["REQUEST_METHOD"]) == Yasc_Router::METHOD_POST 
-                    && true === array_key_exists("_method", $_POST)) {
+                if ($this->_request->getMethod() == Yasc_Http_Request::METHOD_POST && isset($_POST["_method"])) {
                     if (strtolower($_POST["_method"]) == $function->getMethod()) {
                         if (true === $this->_lookup($function)) {
                             $this->_requestedFunction = $function;
@@ -160,9 +158,7 @@ class Yasc_Router_Route {
         }
 
         if (null === $this->_requestedFunction) {
-            throw new Yasc_Router_Exception("Requested function not found, 
-                request URI: '{$_SERVER["REQUEST_URI"]}', 
-                request method: '{$_SERVER["REQUEST_METHOD"]}'");
+            throw new Yasc_Router_Exception("Requested function not found, `" . $this->_request->getUrl() . "` via `" . strtoupper($this->_request->getMethod()) . "`");
         }
         
         $this->_requestedFunction->setParams((array) $this->_setupParams());
@@ -179,7 +175,7 @@ class Yasc_Router_Route {
         $annotationPattern = $function->getAnnotation()->getPattern();
         // stripslashes because we need to scape some of them when we use wildcards
         // like * or **.
-        $annotationParts = explode($this->_http->getUrlDelimiter(), stripcslashes($annotationPattern));
+        $annotationParts = explode($this->_request->getUrlDelimiter(), stripcslashes($annotationPattern));
 
         // regex route.
         if ($annotationPattern[0] == "^") {
@@ -189,7 +185,7 @@ class Yasc_Router_Route {
 
             $pattern = "#" . $annotationPattern . "#i";
         // slash route.
-        } else if ($annotationPattern == $this->_http->getUrlDelimiter()) {
+        } else if ($annotationPattern == $this->_request->getUrlDelimiter()) {
             $pattern = "#^" . self::OPTIONAL_SLASH_SUBPATTERN . "$#";
         } else {
             $parsed = array(); $paramsList = array(); $paramsCounter = 0;
@@ -246,7 +242,7 @@ class Yasc_Router_Route {
             $pattern = "#^" . implode("", $parsed) . self::OPTIONAL_SLASH_SUBPATTERN . "?$#i";
         }
                 
-        if (true == preg_match($pattern, $this->_http->getUrlPattern(), $matches)) {
+        if (true == preg_match($pattern, $this->_request->getUrlPattern(), $matches)) {
             $this->_pattern = $pattern;
             $this->_matches = $matches;
             $this->_paramsList = (isset($paramsList)) ? $paramsList : array();
@@ -290,13 +286,13 @@ class Yasc_Router_Route {
         $pairs = array();
         
         foreach ($params as $index => $param) {
-            if (false === strpos($param, $this->_http->getUrlDelimiter())) {
+            if (false === strpos($param, $this->_request->getUrlDelimiter())) {
                 continue;
             }
             
             $dobleAsteriskParam = $param;
             unset($params[$index]);
-            $pairs = array_merge($pairs, explode($this->_http->getUrlDelimiter(), $dobleAsteriskParam));
+            $pairs = array_merge($pairs, explode($this->_request->getUrlDelimiter(), $dobleAsteriskParam));
         }
         
         // get params by pairs, like zend framework does, 

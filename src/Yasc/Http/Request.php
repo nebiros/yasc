@@ -15,7 +15,7 @@
  *
  * @category Yasc
  * @package Yasc
- * @subpackage Yasc_Request
+ * @subpackage Yasc_Http
  * @copyright Copyright (c) 2010 - 2014 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
  * @version $Id$
  * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
@@ -24,12 +24,20 @@
 /**
  *
  * @package Yasc
- * @subpackage Yasc_Request
+ * @subpackage Yasc_Http
  * @copyright Copyright (c) 2010 - 2014 Juan Felipe Alvarez Sadarriaga. (http://juan.im)
  * @license http://github.com/nebiros/yasc/raw/master/LICENSE New BSD License
  * @author nebiros
  */
-class Yasc_Request_Http {
+class Yasc_Http_Request {
+	const METHOD_HEAD = "head";
+    const METHOD_GET = "get";
+    const METHOD_POST = "post";
+    const METHOD_PUT = "put";
+    const METHOD_DELETE = "delete";
+	const METHOD_PATCH = "patch";
+	const METHOD_OPTIONS = "options";
+	
     /**
      * Default scheme.
      *
@@ -88,16 +96,33 @@ class Yasc_Request_Http {
      * @var array
      */
     protected $_urlComponents = array();
+	
+	/**
+	 * @var Yasc_Http_Header
+	 */
+	protected $_headers = null;
 
-    /**
-     *
-     * @param string $serverName 
-     * @param string $uri
+	public function __construct() {
+		$this->_headers = new Yasc_Http_Header(Yasc_Http_Header::extract());
+		
+		$this->setCurrentUrl();
+	}
+	
+	/**
+	 * @return array
+	 */
+	public function getHeaders() {
+		return $this->_headers;
+	}
+	
+	/**
+	 *
+     * @return string
      */
-    public function __construct($serverName = null, $uri = null) {
-        $this->processUrl($serverName, $uri);
+    public function getMethod() {
+        return strtolower($_SERVER["REQUEST_METHOD"]);
     }
-
+	
     /**
      *
      * @return string
@@ -109,7 +134,7 @@ class Yasc_Request_Http {
     /**
      *
      * @param int $port
-     * @return Yasc_Request_Http 
+     * @return Yasc_Http_Request 
      */
     public function setDefaultPort($port) {
         $this->_defaultPort = (int) $port;
@@ -127,7 +152,7 @@ class Yasc_Request_Http {
     /**
      *
      * @param int $port
-     * @return Yasc_Request_Http 
+     * @return Yasc_Http_Request 
      */
     public function setSslPort($port) {
         $this->_sslPort = (int) $port;
@@ -181,6 +206,20 @@ class Yasc_Request_Http {
     public function getUrlPattern() {
         return $this->_urlPattern;
     }
+	
+	/**
+	 * @return Yasc_Http_Request
+	 */
+	public function setCurrentUrl() {
+		$result = $this->buildUrl();
+		
+		$this->_serverUrl = $result["server_url"];
+		$this->_url = $result["url"];
+		$this->_urlComponents = $result["url_components"];
+		$this->_urlPattern = $result["url_pattern"];
+		
+		return $this;
+	}
 
     /**
      *
@@ -189,27 +228,95 @@ class Yasc_Request_Http {
     public function getUrlComponents() {
         return $this->_urlComponents;
     }
-
+	
     /**
-     * Process url requested.
+	 *
+     * @return bool
+     */
+    public function isGet() {
+        return $this->getMethod() === self::METHOD_GET;
+    }
+	
+    /**
+	 *
+     * @return bool
+     */
+    public function isPost() {
+        return $this->getMethod() === self::METHOD_POST;
+    }
+	
+    /**
+	 *
+     * @return bool
+     */
+    public function isPut() {
+        return $this->getMethod() === self::METHOD_PUT;
+    }
+	
+    /**
+     *
+     * @return bool
+     */
+    public function isPatch() {
+        return $this->getMethod() === self::METHOD_PATCH;
+    }
+	
+    /**
+     *
+     * @return bool
+     */
+    public function isDelete() {
+        return $this->getMethod() === self::METHOD_DELETE;
+    }
+	
+    /**
+	 *
+     * @return bool
+     */
+    public function isHead() {
+        return $this->getMethod() === self::METHOD_HEAD;
+    }
+	
+    /**
+     *
+     * @return bool
+     */
+    public function isOptions() {
+        return $this->getMethod() === self::METHOD_OPTIONS;
+    }
+	
+    /**
+     *
+     * @return bool
+     */
+    public function isXhr() {
+        if (isset($this->_headers["X_REQUESTED_WITH"]) && $this->_headers["X_REQUESTED_WITH"] === "XMLHttpRequest") {
+            return true;
+        }
+		
+        return false;
+    }
+	
+    /**
+     * Build URL.
      *
      * @param string $serverName
-     * @param string $uri
-     * @return Yasc_Request_Http
+     * @param string $path
+     * @return array
      */
-    public function processUrl($serverName = null, $uri = null) {
-        if (null === $serverName || $serverName == $this->_urlDelimiter) {
+    public function buildUrl($serverName = null, $path = null) {
+        if (null === $serverName || $serverName == $this->getUrlDelimiter()) {
             $httpHost = $serverName = $_SERVER["HTTP_HOST"];
         }
         
-        if (false !== ($port = strstr($serverName, $this->_urlVariable))) {
+        if (false !== ($port = strstr($serverName, $this->getUrlVariable()))) {
             $serverName = str_replace($port, "", $serverName);
             $port = str_replace($this->_urlVariable, "", $port);
         } else {
             $port = $_SERVER["SERVER_PORT"];
         }
 
-        $url = $this->_scheme;
+        $url = $this->getScheme();
 
         switch (true) {
             case (true === isset($_SERVER["HTTPS"]) && ($_SERVER["HTTPS"] == "on" || $_SERVER["HTTPS"] === true)):
@@ -220,7 +327,7 @@ class Yasc_Request_Http {
         }
 
         if (substr($url, -1) != "s") {
-            if ($port == $this->_sslPort) {
+            if ($port == $this->getSslPort()) {
                 $url .= "s";
             }
         }
@@ -233,36 +340,32 @@ class Yasc_Request_Http {
             } else {
                 $url .= $serverName;
             }            
-        } else if (($port != $this->_defaultPort)
-            && $port != $this->_sslPort) {
+        } else if (($port != $this->getDefaultPort())
+            && $port != $this->getSslPort()) {
             $url .= $serverName . ":" . $port;
         } else {
             $url .= $serverName;
         }
         
-        $this->_serverUrl = $url;
+		$result = array("server_url" => $url);
         
-        if (false === is_string($uri)) {
-            $uri = $_SERVER["REQUEST_URI"];
+        if (false === is_string($path)) {
+            $path = $_SERVER["REQUEST_URI"];
         }
         
-        if (isset($uri[0]) && $uri[0] != $this->_urlDelimiter) {
-            $uri = $this->_urlDelimiter . $uri;
+        if (isset($path[0]) && $path[0] != $this->getUrlDelimiter()) {
+            $path = $this->getUrlDelimiter() . $path;
         }        
         
-        $url .= $uri;
+        $url .= $path;
 
-        $this->_url = trim($url, $this->_urlDelimiter);
-        $this->_urlComponents = parse_url($this->_url);
+        $result["url"] = trim($url, $this->getUrlDelimiter());
+        $result["url_components"] = parse_url($result["url"]);
 
-        $path = (isset($this->_urlComponents["path"])) ? $this->_urlComponents["path"] : "";
+        $path = (isset($result["url_components"]["path"])) ? $result["url_components"]["path"] : "";
         $urlPattern = str_replace($_SERVER["SCRIPT_NAME"], "", rtrim($path, "/"));
-        $this->_urlPattern = ($urlPattern) ? $urlPattern : $this->_urlDelimiter;
+        $result["url_pattern"] = ($urlPattern) ? $urlPattern : $this->getUrlDelimiter();
 
-        return $this;
-    }
-    
-    public function __toString() {
-        return $this->_url;
+        return $result;
     }
 }
