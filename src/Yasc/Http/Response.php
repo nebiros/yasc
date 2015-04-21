@@ -169,6 +169,11 @@ class Yasc_Http_Response {
 	public function outputBody() {
 	    echo $this->_body;
 	}
+    
+    public function clearBody() {
+        $this->setBody("");
+        return $this;
+    }
 	
 	public function getLength() {
 		return $this->_length;
@@ -188,15 +193,33 @@ class Yasc_Http_Response {
 	
 	public function sendResponse() {
 		$this->sendHeaders();
+        
+        if ($this->isRedirection()) {
+            exit();
+        }
 		
 		$this->outputBody();
 	}
 	
 	public function redirect($url, $status = 302) {
 		$this->setStatus($status);
-		
-		// $this->_headers->append('Location', $url);
+        $this->addHeaders(array("Location" => $url));
+        $this->stop();
 	}
+    
+	public function redirectTo($path, $status = 302) {
+		$this->setStatus($status);
+        
+        $router = new Yasc_Router();
+        $url = $router->urlFor($path);
+        
+        $this->addHeaders(array("Location" => $url));
+        $this->stop();
+	}
+    
+    public function stop() {
+        $this->clearBody();
+    }
 	
     /**
      * @return bool
