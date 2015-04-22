@@ -31,16 +31,35 @@
  */
 class Yasc_View_Helper_Url extends Yasc_View_Helper_HelperAbstract {
     public function __construct() {}
+        
+    public function __call($name, $arguments) {
+        switch ($name) {
+            case "url":
+                if (count($arguments) === 1 && is_array($arguments[0])) {
+                    return $this->urlServerNamePath($arguments[0]);
+                } else if (count($arguments) === 1 && is_string($arguments[0])) {
+                    return $this->urlFor($arguments[0]);
+                } else {
+                    return $this->urlFor(null);
+                }
+                
+                break;
+                
+            default:
+                return $this->urlFor(null);
+                break;
+        }
+    }   
 
     /**
      *
      * @param array $options
      * @return string 
      */
-    public function url(Array $options = null) {
+    protected function urlServerNamePath(Array $options = null) {
         $serverName = isset($options["server_name"]) ? $options["server_name"] : null;
         $path = isset($options["path"]) ? $options["path"] : null;
-        
+
         return Yasc_App::getInstance()->getRouter()->url($serverName, $path);
     }
 	
@@ -49,7 +68,7 @@ class Yasc_View_Helper_Url extends Yasc_View_Helper_HelperAbstract {
      * @param string $path
      * @return string 
      */
-    public function urlFor($path) {
+    protected function urlFor($path) {
         return Yasc_App::getInstance()->getRouter()->urlFor($path);
     }
 }
