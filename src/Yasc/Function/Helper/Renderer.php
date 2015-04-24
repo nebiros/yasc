@@ -38,10 +38,11 @@ class Yasc_Function_Helper_Renderer {
      * @return void
      */
     public function setCommonHeaders() {
-        header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
-        header("Last-Modified: " . gmdate("D, d M Y H:i:s") . "GMT");
-        header("Cache-Control: no-cache, must-revalidate");
-        header("Pragma: no-cache");
+        \Yasc_App::response()->addHeaders(array("Expires" => array("value" => "Mon, 26 Jul 1997 05:00:00 GMT"),
+            "Last-Modified" => array("value" => gmdate("D, d M Y H:i:s") . "GMT"),
+            "Cache-Control" => array("value" => "no-cache, must-revalidate"),
+            "Pragma" => array("value" => "no-cache"),
+        ));
     }
 
     /**
@@ -51,8 +52,15 @@ class Yasc_Function_Helper_Renderer {
      */
     public function setContentTypeHeaderFor($type) {
         switch ($type) {
-            case "json": header("Content-type: application/json"); break;
-            case "js": header("Content-type: application/javascript"); break;
+            case "json":
+                \Yasc_App::response()->addHeaders(array("Content-Type" => array("value" => "application/json")));
+                break;
+            case "js": 
+                \Yasc_App::response()->addHeaders(array("Content-Type" => array("value" => "application/javascript")));
+                break;                
+            case "xml": 
+                \Yasc_App::response()->addHeaders(array("Content-Type" => array("value" => "application/xml; charset=utf-8")));
+                break;
         }
     }
 
@@ -84,6 +92,7 @@ class Yasc_Function_Helper_Renderer {
                 break;
 
             case "js":
+                $return = $message;
                 break;
 
             case "xml":
@@ -95,10 +104,15 @@ class Yasc_Function_Helper_Renderer {
                 break;
             
             default:
+                $return = $message;
                 break;
         }
 
-        if ((bool) $options["echo"]) Yasc_App::view()->layout()->disable(); echo $return; exit();
+        if ((bool) $options["echo"]) {
+            \Yasc_App::view()->layout()->disable();
+            \Yasc_App::response()->setBody($return)->sendResponse();
+            exit();
+        }
 
         return $return;
     }

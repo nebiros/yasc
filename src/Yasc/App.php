@@ -442,8 +442,8 @@ class Yasc_App {
             self::$_instance->_view->render(self::$_instance->_layout->getLayout());            
             $buffer = self::$_instance->_view->getBuffer();
         }
-		
-		$this->_response->setBody($buffer);
+
+		if (strlen($buffer) > 0) $this->_response->setBody($buffer);
     }
 
     /**
