@@ -256,7 +256,7 @@ class Yasc_Http_Response {
     
     public function redirect($url, $status = 302) {
         $this->setStatus($status);
-        $this->addHeaders(array("Location" => $url));
+        $this->setHeaders(array("Location" => array("value" => $url)));
         $this->stop();
     }
     
@@ -266,7 +266,7 @@ class Yasc_Http_Response {
         $router = new Yasc_Router();
         $url = $router->urlFor($path);
         
-        $this->addHeaders(array("Location" => $url));
+        $this->setHeaders(array("Location" => array("value" => $url)));
         $this->stop();
     }
     
