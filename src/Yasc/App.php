@@ -432,11 +432,16 @@ class Yasc_App {
      */
     protected function _dispatch() {
         self::$_instance->_execute();
+        
+        if (self::$_instance->_response->isRedirection()) {
+            return;
+        }
 
         $buffer = self::$_instance->_view->getBuffer();
 
-        if (null !== self::$_instance->_layout 
-            && false === self::$_instance->_layout->isDisabled() 
+        if (null !== self::$_instance->_layout && 
+            false === self::$_instance->_layout->isDisabled() &&
+            false === self::$_instance->_request->isXhr()
            ) {
             self::$_instance->_layout->setContent($buffer);
             self::$_instance->_view->render(self::$_instance->_layout->getLayout());            
