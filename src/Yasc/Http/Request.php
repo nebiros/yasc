@@ -30,14 +30,14 @@
  * @author nebiros
  */
 class Yasc_Http_Request {
-	const METHOD_HEAD = "head";
+    const METHOD_HEAD = "head";
     const METHOD_GET = "get";
     const METHOD_POST = "post";
     const METHOD_PUT = "put";
     const METHOD_DELETE = "delete";
-	const METHOD_PATCH = "patch";
-	const METHOD_OPTIONS = "options";
-	
+    const METHOD_PATCH = "patch";
+    const METHOD_OPTIONS = "options";
+    
     /**
      * Default scheme.
      *
@@ -96,33 +96,33 @@ class Yasc_Http_Request {
      * @var array
      */
     protected $_urlComponents = array();
-	
-	/**
-	 * @var Yasc_Http_Header
-	 */
-	protected $_headers = null;
+    
+    /**
+     * @var Yasc_Http_Header
+     */
+    protected $_headers = null;
 
-	public function __construct() {
-		$this->_headers = new Yasc_Http_Header(Yasc_Http_Header::extract());
-		
-		$this->setCurrentUrl();
-	}
-	
-	/**
-	 * @return array
-	 */
-	public function getHeaders() {
-		return $this->_headers;
-	}
-	
-	/**
-	 *
+    public function __construct() {
+        $this->_headers = new Yasc_Http_Header(Yasc_Http_Header::extract());
+        
+        $this->setCurrentUrl();
+    }
+    
+    /**
+     * @return array
+     */
+    public function getHeaders() {
+        return $this->_headers;
+    }
+    
+    /**
+     *
      * @return string
      */
     public function getMethod() {
         return strtolower($_SERVER["REQUEST_METHOD"]);
     }
-	
+    
     /**
      *
      * @return string
@@ -206,20 +206,20 @@ class Yasc_Http_Request {
     public function getUrlPattern() {
         return $this->_urlPattern;
     }
-	
-	/**
-	 * @return Yasc_Http_Request
-	 */
-	public function setCurrentUrl() {
-		$result = $this->buildUrl();
-		
-		$this->_serverUrl = $result["server_url"];
-		$this->_url = $result["url"];
-		$this->_urlComponents = $result["url_components"];
-		$this->_urlPattern = $result["url_pattern"];
-		
-		return $this;
-	}
+    
+    /**
+     * @return Yasc_Http_Request
+     */
+    public function setCurrentUrl() {
+        $result = $this->buildUrl();
+        
+        $this->_serverUrl = $result["server_url"];
+        $this->_url = $result["url"];
+        $this->_urlComponents = $result["url_components"];
+        $this->_urlPattern = $result["url_pattern"];
+        
+        return $this;
+    }
 
     /**
      *
@@ -228,31 +228,31 @@ class Yasc_Http_Request {
     public function getUrlComponents() {
         return $this->_urlComponents;
     }
-	
+    
     /**
-	 *
+     *
      * @return bool
      */
     public function isGet() {
         return $this->getMethod() === self::METHOD_GET;
     }
-	
+    
     /**
-	 *
+     *
      * @return bool
      */
     public function isPost() {
         return $this->getMethod() === self::METHOD_POST;
     }
-	
+    
     /**
-	 *
+     *
      * @return bool
      */
     public function isPut() {
         return $this->getMethod() === self::METHOD_PUT;
     }
-	
+    
     /**
      *
      * @return bool
@@ -260,7 +260,7 @@ class Yasc_Http_Request {
     public function isPatch() {
         return $this->getMethod() === self::METHOD_PATCH;
     }
-	
+    
     /**
      *
      * @return bool
@@ -268,15 +268,15 @@ class Yasc_Http_Request {
     public function isDelete() {
         return $this->getMethod() === self::METHOD_DELETE;
     }
-	
+    
     /**
-	 *
+     *
      * @return bool
      */
     public function isHead() {
         return $this->getMethod() === self::METHOD_HEAD;
     }
-	
+    
     /**
      *
      * @return bool
@@ -284,19 +284,19 @@ class Yasc_Http_Request {
     public function isOptions() {
         return $this->getMethod() === self::METHOD_OPTIONS;
     }
-	
+    
     /**
      *
      * @return bool
      */
     public function isXhr() {
-        if (isset($this->_headers["X_REQUESTED_WITH"]) && $this->_headers["X_REQUESTED_WITH"] === "XMLHttpRequest") {
+        if (isset($this->_headers["HTTP_X_REQUESTED_WITH"]) && $this->_headers["HTTP_X_REQUESTED_WITH"] === "XMLHttpRequest") {
             return true;
         }
-		
+        
         return false;
     }
-	
+    
     /**
      * Build URL.
      *
@@ -347,7 +347,7 @@ class Yasc_Http_Request {
             $url .= $serverName;
         }
         
-		$result = array("server_url" => $url);
+        $result = array("server_url" => $url);
         
         if (false === is_string($path)) {
             $path = $_SERVER["REQUEST_URI"];

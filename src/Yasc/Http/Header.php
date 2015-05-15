@@ -30,18 +30,18 @@
  * @author nebiros
  */
 class Yasc_Http_Header extends \ArrayObject {
-	/**
+    /**
      * @var array
      */
     protected static $_special = array(
-    	"CONTENT_TYPE",
+        "CONTENT_TYPE",
         "CONTENT_LENGTH",
         "PHP_AUTH_USER",
         "PHP_AUTH_PW",
         "PHP_AUTH_DIGEST",
         "AUTH_TYPE"
     );
-	
+    
     /**
      * @return array
      */

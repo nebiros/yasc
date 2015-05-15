@@ -243,6 +243,14 @@ class Yasc_Http_Response {
     }
     
     public function sendResponse() {
+        if (in_array($this->getStatus(), array(204, 304))) {
+            $headers = $this->getHeaders();
+            unset($headers["Content-Type"], $headers["Content-Length"]);
+            
+            $this->setHeaders($headers);
+            $this->clearBody();
+        }
+                    
         $this->sendHeaders();
         
         if ($this->isRedirection()) {
