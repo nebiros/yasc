@@ -104,7 +104,7 @@ function bar_single_param() {
     Yasc_App::view()->var = "I\'m a view variable!";
     
     // instance of a model.
-    $foo = new Model_Foo();
+    $foo = new \Model_Foo();
     Yasc_App::view()->do_something = $foo->doSomething();
     
     // Render a view without the layout.
