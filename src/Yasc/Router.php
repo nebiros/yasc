@@ -33,7 +33,7 @@ class Yasc_Router {
      * @var Yasc_App
      */
     protected $_app = null;
-	
+
 	/**
 	 * @var Yasc_Http_Request
 	 */
@@ -55,23 +55,25 @@ class Yasc_Router {
 
         return $requestedFunction;
     }
-	
+
 	/**
 	 * @param string $serverName
 	 * @param string $path
+     * @param array $options
 	 * @return string
 	 */
-	public function url($serverName, $path) {
-		$result = $this->_request->buildUrl($serverName, $path);
+	public function url($serverName, $path, Array $options = null) {
+		$result = $this->_request->buildUrl($serverName, $path, $options);
 		return $result["url"];
 	}
-		
+
 	/**
 	 * @param string $path
+     * @param array $options
 	 * @return string
 	 */
-	public function urlFor($path) {
-		$result = $this->_request->buildUrl(null, $path);
+	public function urlFor($path, Array $options = null) {
+		$result = $this->_request->buildUrl(null, $path, $options);
 		return $result["url"];
 	}
 }

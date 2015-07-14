@@ -317,9 +317,10 @@ class Yasc_Http_Request {
      *
      * @param string $serverName
      * @param string $path
+     * @param array $options
      * @return array
      */
-    public function buildUrl($serverName = null, $path = null) {
+    public function buildUrl($serverName = null, $path = null, Array $options = null) {
         if (null === $serverName || $serverName == $this->getUrlDelimiter()) {
             $httpHost = $serverName = $_SERVER["HTTP_HOST"];
         }
@@ -333,13 +334,17 @@ class Yasc_Http_Request {
 
         $url = $this->getScheme();
 
-        if ($this->isSecureHttp()) {
+        if (isset($options["url_force_https"]) && true === $options["url_force_https"]) {
             $url .= "s";
-        }
-
-        if (substr($url, -1) != "s") {
-            if ($port == $this->getSslPort()) {
+        } else {
+            if ($this->isSecureHttp()) {
                 $url .= "s";
+            }
+
+            if (substr($url, -1) != "s") {
+                if ($port == $this->getSslPort()) {
+                    $url .= "s";
+                }
             }
         }
 

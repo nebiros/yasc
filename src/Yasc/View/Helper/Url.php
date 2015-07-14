@@ -31,7 +31,7 @@
  */
 class Yasc_View_Helper_Url extends Yasc_View_Helper_HelperAbstract {
     public function __construct() {}
-        
+
     public function __call($name, $arguments) {
         switch ($name) {
             case "url":
@@ -42,33 +42,46 @@ class Yasc_View_Helper_Url extends Yasc_View_Helper_HelperAbstract {
                 } else {
                     return $this->urlFor(null);
                 }
-                
+
                 break;
-                
+
             default:
                 return $this->urlFor(null);
                 break;
         }
-    }   
+    }
 
     /**
      *
      * @param array $options
-     * @return string 
+     * @return string
      */
     protected function urlServerNamePath(Array $options = null) {
         $serverName = isset($options["server_name"]) ? $options["server_name"] : null;
         $path = isset($options["path"]) ? $options["path"] : null;
 
-        return Yasc_App::getInstance()->getRouter()->url($serverName, $path);
+        $appConfig = \Yasc_App::config()->getOption("appConfig");
+
+        if (isset($appConfig["url_force_https"])) {
+            $options["url_force_https"] = (bool) $appConfig["url_force_https"];
+        }
+
+        return Yasc_App::getInstance()->getRouter()->url($serverName, $path, $options);
     }
-	
+
     /**
      *
      * @param string $path
-     * @return string 
+     * @return string
      */
     protected function urlFor($path) {
-        return Yasc_App::getInstance()->getRouter()->urlFor($path);
+        $appConfig = \Yasc_App::config()->getOption("appConfig");
+        $options = array();
+
+        if (isset($appConfig["url_force_https"])) {
+            $options["url_force_https"] = (bool) $appConfig["url_force_https"];
+        }
+
+        return Yasc_App::getInstance()->getRouter()->urlFor($path, $options);
     }
 }
