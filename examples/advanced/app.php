@@ -245,7 +245,7 @@ function save_update() {
     
     /* @var $flash Yasc_Function_Helper_Flash */
     $flash = Yasc_App::functionHelper("flash");
-    $flash->message("Done.");
+    $flash->info("Done.");
     
     return header("Location: " . Yasc_App::viewHelper("url")->url(array("path" => "/update")));
 }
