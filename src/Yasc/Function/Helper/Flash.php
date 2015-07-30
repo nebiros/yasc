@@ -132,7 +132,7 @@ class Yasc_Function_Helper_Flash {
      * @param string $msg
      * @return Yasc_Function_Helper_Flash
      */
-    public function notice($msg) {
+    public function success($msg) {
         $this->add($msg, self::TYPE_SUCCESS);
         return self::getInstance();
     }
